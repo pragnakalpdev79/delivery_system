@@ -12,6 +12,8 @@ from django.contrib.contenttypes.models import ContentType
 from rest_framework.test import APIClient
 from rest_framework import status
 
+from apps.users.models import CustomUser
+
 
 @pytest.fixture(autouse=True)
 def create_groups(db):

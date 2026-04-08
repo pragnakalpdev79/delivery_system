@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 from decouple import config, Csv
+from datetime import timedelta
 
 # Build paths inside the project
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -17,6 +18,8 @@ DJANGO_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 THIRD_PARTY_APPS = [
@@ -26,11 +29,14 @@ THIRD_PARTY_APPS = [
     'colorfield',
     'django_extensions',
     'drf_spectacular',
+    "channels",
 ]
 
 LOCAL_APPS = [
     'apps.core',
     'apps.users',
+    'apps.restaurants',
+    'apps.orders',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -57,8 +63,40 @@ SILENCED_SYSTEM_CHECKS = ["security.W019"]
 ROOT_URLCONF = 'config.urls'
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES' : [
+        'rest_framework_simplejwt.authentication.JWTAuthentication'],
+    'DEFAULT_PERMISSION_CLASSES' : [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+    'DEFAULT_THROTTLE_CLASSES' : [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon' : '100/hour',
+        'user' : '1000/hour',
+    },
+    'DEFAULT_FILTER_BACKENDS' : [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
     'DEFAULT_SCHEMA_CLASS' : 'drf_spectacular.openapi.AutoSchema',
     'EXCEPTION_HANDLER' : 'common.exceptions.custom_exception_handler',
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME' : timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS' : True,
+    'BLACKLIST_AFTER_ROTATION' : True,
+    'UPDATE_LAST_LOGIN' : True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY' : SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD' : 'id',
+    'USER_ID_CLAIM': 'user_id',
 }
 
 # Templates
@@ -157,4 +195,16 @@ LOGGING = {
             'level': 'INFO',
         },
     },
+}
+
+CHANNEL_LAYERS = {
+    'default':{
+        'BACKEND' : 'channels_redis.core.RedisChannelLayer',
+        'CONFIG' :
+        {
+            'hosts' : [('127.0.0.1',6379)],
+            'capacity': 1500,
+        }
+
+    }
 }

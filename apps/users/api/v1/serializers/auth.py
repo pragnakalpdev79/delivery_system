@@ -7,7 +7,7 @@ from rest_framework import serializers
 from apps.users.models import CustomUser
 
 
-logger = logging.getLogger('user')
+logger = logging.getLogger('main')
 
 
 #===============================================================
