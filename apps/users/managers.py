@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 # Third-Party Imports (Django)
 from django.contrib.auth.models import BaseUserManager
+from django.utils.translation import gettext_lazy as _
 
 ###########################################################################
 #  0. USER MANAGER FOR CUSTOMUSER MODEL
@@ -10,18 +11,12 @@ class MyUserManager(BaseUserManager):
 
     # 0.1 FUNCTION TO HANDLE NEW NORMAL USER CREATION
     def create_user(self,email,password=None,**extra_fields):
-
-        #logger.info("p6-create function inside usermanager ")
         if not email:
             raise ValueError(_('The Email field must be set'))
         email = self.normalize_email(email)
-        #logger.info("----p6.1-email checkd -----")
         user = self.model(email=email,**extra_fields)
-        #logger.info("----p6.2-details stored -----")
         user.set_password(password)
-        #logger.info("----p6.3-password stored-----")
         user.save(using=self.db)
-        #logger.info("----p6.4-user saved-----")
         return user
 
     # 0.2 FUNCTION TO HANDLE NEW ADMIN/SUPERUSER CREATION 

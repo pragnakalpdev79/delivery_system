@@ -7,7 +7,8 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save,pre_save
 
 # Local Imports
-from apps.users.models import CustomUser,CustomerProfile,DriverProfile
+from apps.users.models import CustomUser,CustomerProfile
+from common.models.driver import DriverProfile
 
 logger = logging.getLogger('main')
 

@@ -7,37 +7,83 @@ from rest_framework import serializers
 from PIL import Image
 
 # Local Imports
-from apps.restaurants.models import RestrauntModel,MenuItem
+from apps.restaurants.models import RestrauntModel, MenuItem
+
+logger = logging.getLogger('main')
 
 
-logger = logging.getLogger('user')
+class MenuItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MenuItem
+        fields = ['id', 'name', 'description', 'price', 'category', 'dietary_info', 'is_available', 'preparation_time', 'foodimage']
+
 
 class RestoListSerializer(serializers.ModelSerializer):
-    logger.info("in serializer")
     is_open_now = serializers.SerializerMethodField()
 
     class Meta:
         model = RestrauntModel
-        fields = ['id','name','description','cuisine_type','address',
-                  'phone_number','email','logo','banner','delivery_fee',
-                  'is_open_now','minimum_order',
-                  'average_rating','total_reviews']
-    
-    def get_is_open_now(self,obj): #TO CHECK IF THE RESTO IS OPEN OR NOT AT GIVEN TIME
-        logger.info(f"======================{datetime.datetime.now().time()}=================")
-        if obj.opening_time <= datetime.datetime.now().time() <= obj.closing_time:
-            logger.info('Restro is Open')
-            return True
-        logger.info('Restro is Closed')
-        return False
-    
-class MenuListSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = ['name','description','price','category','dietary_info','is_available','preparation_time']
-        model = MenuItem
+        fields = ['id', 'name', 'description', 'cuisine_type', 'address', 'phone_number', 'email',
+                  'logo', 'banner', 'delivery_fee', 'minimum_order', 'average_rating', 'total_reviews', 'is_open_now']
+
+    def get_is_open_now(self, obj):
+        now = datetime.datetime.now().time()
+        return obj.opening_time <= now <= obj.closing_time
+
 
 class RestoSerializer(serializers.ModelSerializer):
-    menu = MenuListSerializer(many=True)
+    menu = MenuItemSerializer(many=True, read_only=True)
+    reviews_count = serializers.SerializerMethodField()
+
     class Meta:
-        fields = ['name','description','cuisine_type','is_open','opening_time','closing_time','menu','review_for']
         model = RestrauntModel
+        fields = ['id', 'owner', 'name', 'description', 'cuisine_type', 'address', 'phone_number', 'email',
+                  'logo', 'banner', 'opening_time', 'closing_time', 'is_open', 'delivery_fee', 'minimum_order',
+                  'average_rating', 'total_reviews', 'menu', 'reviews_count']
+        read_only_fields = ['owner', 'average_rating', 'total_reviews']
+
+    def get_reviews_count(self, obj):
+        return obj.review_for.count()
+
+
+class RestoCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RestrauntModel
+        exclude = ['deleted_at', 'average_rating', 'total_reviews', 'is_open']
+
+    def validate_logo(self, value):
+        if not value:
+            return value
+        if value.size > 5 * 1024 * 1024:
+            raise serializers.ValidationError("Logo size cannot exceed 5MB")
+        ext = value.name.split('.')[-1].lower()
+        if ext not in ['jpg', 'jpeg', 'png']:
+            raise serializers.ValidationError("Only jpg, jpeg, png allowed")
+        try:
+            img = Image.open(value); img.verify()
+        except Exception:
+            raise serializers.ValidationError("Invalid logo image")
+        return value
+
+    def validate_banner(self, value):
+        if not value:
+            return value
+        if value.size > 10 * 1024 * 1024:
+            raise serializers.ValidationError("Banner size cannot exceed 10MB")
+        ext = value.name.split('.')[-1].lower()
+        if ext not in ['jpg', 'jpeg', 'png']:
+            raise serializers.ValidationError("Only jpg, jpeg, png allowed")
+        try:
+            img = Image.open(value); img.verify()
+        except Exception:
+            raise serializers.ValidationError("Invalid banner image")
+        return value
+
+    def create(self, validated_data):
+        validated_data['owner'] = self.context['request'].user
+        return super().create(validated_data)
+
+
+class RestoUpdateSerializer(RestoCreateSerializer):
+    class Meta(RestoCreateSerializer.Meta):
+        pass

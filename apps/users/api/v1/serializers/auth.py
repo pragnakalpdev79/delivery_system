@@ -11,10 +11,10 @@ logger = logging.getLogger('main')
 
 
 #===============================================================
-# SIGN UP VIEW SERIALIZER
+# SIGN UP SERIALIZER
 class CustomUserRegistrationSerializer(serializers.ModelSerializer):
     """
-    USED IN  USER SIGN UP/REGISTRATION VIEW
+    USER SIGN UP/REGISTRATION 
     - Validates Phone number
     - Validates 2 input passwords if they are same or not
     """
@@ -37,9 +37,6 @@ class CustomUserRegistrationSerializer(serializers.ModelSerializer):
         data.pop('password_confirm')
         return data
 
-    def create(self,data):
-        user = CustomUser.objects.create_user(**data)
-        return user
     
 #===============================================================
 # LOGIN VIEW SERIALIZER

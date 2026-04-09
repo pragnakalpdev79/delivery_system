@@ -1,17 +1,69 @@
 # Standard Library Imports
 import logging
+from decimal import Decimal
 
 # Third-Party Imports (Django)
 from django.db import transaction
 
-#Local Imports
-from apps.orders.models import Order,CartItem
-from apps.restaurants.models import MenuItem
+# Local Imports
+from apps.orders.models import CartItem, Order, OrderItem
 
 logger = logging.getLogger('main')
+
 
 class CartService:
     @staticmethod
     @transaction.atomic
-    def update_cart(user,menu_item,quantity):
-        
+    def update_cart(user, menu_item, quantity):
+        existing = CartItem.objects.filter(user=user, menu_item=menu_item).first()
+        if existing:
+            existing.quantity += quantity
+            existing.save(update_fields=['quantity'])
+            return existing
+        return CartItem.objects.create(user=user, menu_item=menu_item, quantity=quantity)
+
+    @staticmethod
+    def cart_total(user):
+        items = CartItem.objects.filter(user=user).select_related('menu_item')
+        total = Decimal('0.00')
+        for i in items:
+            total += i.menu_item.price * i.quantity
+        return total.quantize(Decimal('0.01'))
+
+    @staticmethod
+    @transaction.atomic
+    def checkout(user, special_instructions=''):
+        cart_items = CartItem.objects.filter(user=user).select_related('menu_item', 'menu_item__restaurant')
+        if not cart_items.exists():
+            raise ValueError("cart is empty")
+
+        restaurants = set(ci.menu_item.restaurant_id for ci in cart_items)
+        if len(restaurants) > 1:
+            raise ValueError("all items must belong to same restaurant")
+
+        restaurant = cart_items.first().menu_item.restaurant
+        try:
+            dadr = user.customer_profile.default_adress
+        except Exception:
+            raise ValueError("default delivery address not found")
+
+        order = Order.objects.create(
+            customer=user,
+            restaurant=restaurant,
+            delivery_address=dadr,
+            adratorder=dadr.address,
+            special_instructions=special_instructions,
+        )
+
+        for ci in cart_items:
+            OrderItem.objects.create(
+                order=order,
+                menu_item=ci.menu_item,
+                quantity=ci.quantity,
+                uprice=ci.menu_item.price,
+            )
+
+        order.calculate_total()
+        order.calculate_eta()
+        cart_items.delete()
+        return order

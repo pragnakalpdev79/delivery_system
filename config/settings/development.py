@@ -19,10 +19,13 @@ DATABASES = {
 }
 # Development-specific apps
 INSTALLED_APPS += [
-    #'debug_toolbar',
+    'drf_spectacular',
+    'debug_toolbar',
+    'silk',
 ]
 
 MIDDLEWARE += [
+    'silk.middleware.SilkyMiddleware',
     #'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 

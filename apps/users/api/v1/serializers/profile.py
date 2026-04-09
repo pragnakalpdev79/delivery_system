@@ -1,49 +1,60 @@
 # Standard Library Imports
-import logging,re
+import logging
+
 # Third-Party Imports (Django)
-from django.contrib.auth import authenticate
-from rest_framework import serializers
 from PIL import Image
+from rest_framework import serializers
+
 # Local Imports
-from apps.users.models import CustomerProfile,DriverProfile,CustomUser
+from apps.users.models import CustomerProfile, CustomUser
+from common.models.driver import DriverProfile
 
 logger = logging.getLogger('main')
+
 
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['email','first_name','last_name','phone_number']
+        fields = ['email', 'first_name', 'last_name', 'phone_number']
+
 
 class CustomerProfileSerializerv(serializers.ModelSerializer):
+    user = CustomerSerializer(read_only=True)
+
     class Meta:
         model = CustomerProfile
-        fields = ['user','avatar','loyalty_points']
-        
+        fields = ['user', 'avatar', 'loyalty_points', 'total_orders', 'total_spend']
+
 
 class CustomProfileSerializer(serializers.ModelSerializer):
-
+    #DONE
     class Meta:
         model = CustomerProfile
-        fields = ['user','avatar','total_orders','loyalty_points']
-        read_only_fields = ['loyalty_points']
+        fields = ['avatar']
 
-    
-    def validate_avatar(self,value):
+    def validate_avatar(self, value):
         if value:
-            if value.size > 5*1024*1024:
+            if value.size > 5 * 1024 * 1024:
                 raise serializers.ValidationError("Image size cannot exceed 5mb")
             ext = value.name.split('.')[-1].lower()
-            if ext not in ['jpg','jpeg','png']:
+            if ext not in ['jpg', 'jpeg', 'png']:
                 raise serializers.ValidationError("Only jpg, jpeg, png allowed")
-        try:
-            img = Image.open(value)
-            img.verify()
-        except Exception:
-            raise serializers.ValidationError("Invalid Image format")
+            try:
+                img = Image.open(value)
+                img.verify()
+            except Exception:
+                raise serializers.ValidationError("Invalid Image format")
         return value
-    
-class DriverProfileSerializer(serializers.ModelSerializer):
 
+
+class DriverProfileSerializer(serializers.ModelSerializer):
+    #DONE
     class Meta:
         model = DriverProfile
-        fields = ['user','avatar','vehicle_number','license_number','']
+        fields = ['user', 'avatar', 'vehicle_number', 'license_number', 'is_available']
+
+class DriverProfileSerializeru(serializers.ModelSerializer):
+    #DONE
+    class Meta:
+        model = DriverProfile
+        fields = ['avatar', 'vehicle_number', 'license_number', 'is_available']

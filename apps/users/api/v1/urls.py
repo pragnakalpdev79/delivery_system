@@ -6,7 +6,8 @@ router = DefaultRouter()
 router.register('register',auth.UserRegistrationView,basename='register')
 router.register('login',auth.UserLoginView,basename='login')
 router.register('logout',auth.UserLogoutView,basename='logout')
-router.register('customer_profile',profile.CustomerProfileView,basename='profile')
+router.register('customer_profile',profile.CustomerProfileView,basename='cprofile')
+router.register('driver_profile',profile.DriverProfileView,basename='dprofile')
 
 urlpatterns = [
     path('',include(router.urls)),

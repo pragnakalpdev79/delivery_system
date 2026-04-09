@@ -12,6 +12,7 @@ SECRET_KEY = config('SECRET_KEY')
 
 # Application definition
 DJANGO_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -19,6 +20,7 @@ DJANGO_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework_simplejwt',
+    'django_filters',
     'rest_framework_simplejwt.token_blacklist',
 ]
 
@@ -28,8 +30,10 @@ THIRD_PARTY_APPS = [
     'admin_interface',
     'colorfield',
     'django_extensions',
-    'drf_spectacular',
     "channels",
+    'channels_redis',
+    'django_celery_beat',
+    'django_celery_results',
 ]
 
 LOCAL_APPS = [
@@ -37,6 +41,7 @@ LOCAL_APPS = [
     'apps.users',
     'apps.restaurants',
     'apps.orders',
+    'common',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -65,9 +70,9 @@ ROOT_URLCONF = 'config.urls'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES' : [
         'rest_framework_simplejwt.authentication.JWTAuthentication'],
-    'DEFAULT_PERMISSION_CLASSES' : [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-    ],
+    # 'DEFAULT_PERMISSION_CLASSES' : [
+    #     'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    # ],
     'DEFAULT_THROTTLE_CLASSES' : [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',
@@ -82,7 +87,22 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter',
     ],
     'DEFAULT_SCHEMA_CLASS' : 'drf_spectacular.openapi.AutoSchema',
-    'EXCEPTION_HANDLER' : 'common.exceptions.custom_exception_handler',
+    #'EXCEPTION_HANDLER' : 'common.exceptions.custom_exception_handler',
+        'DEFAULT_THROTTLE_CLASSES' : [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+        'rest_framework.throttling.ScopedRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon' : '100/hour',
+        'user' : '1000/hour',
+        'order_create': '20/hour',
+        'review_create': '10/hour',
+        'location_update': '500/hour',
+    },
+    'DEFAULT_VERSIONING_CLASS' : 'rest_framework.versioning.URLPathVersioning',
+    'DEFAULT_VERSION': None,
+    'ALLOWED_VERSIONS' : ['v1','v2'],
 }
 
 SIMPLE_JWT = {
@@ -118,6 +138,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+ASGI_APPLICATION = 'config.asgi.application'
+
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -139,7 +161,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'root')
 #-----------------------------------------------------
 STATICFILES_DIRS = [
-        os.path.join(BASE_DIR, 'static'),
+        os.path.join(BASE_DIR, 'static/'),
 ]
 
 # Media files
@@ -149,18 +171,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-SPECTACULAR_SETTINGS = {
-    'TITLE' : 'FOOD DELIVERY SYSTEM',
-    'DESCRIPTION' : 'API MAP FOR TASK',
-    'VERSION' : '1.0.0',
-    'SERVE_INCLUDE_SCHEMA' : False,
-    'AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
-    'SWAGGER_UI_SETTINGS': {
-        'persistAuthorization': True,
-    }
-}
+
 
 LOGGING = {
     'version': 1,
@@ -206,5 +217,18 @@ CHANNEL_LAYERS = {
             'capacity': 1500,
         }
 
+    }
+}
+
+
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+        'KEY_PREFIX': 'food_delivery',
     }
 }

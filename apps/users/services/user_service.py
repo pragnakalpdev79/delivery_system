@@ -15,7 +15,7 @@ class UserService:
     @staticmethod
     @transaction.atomic
     def create_user(**kwargs):
-        
+        #DONE
         user = CustomUser.objects.create_user(
              email=kwargs.get('email'),
              password=kwargs.get('password'),
