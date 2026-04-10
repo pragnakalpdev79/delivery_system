@@ -4,8 +4,7 @@ from decouple import config
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
-
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0','127.0.0.1:58306']
 DATABASES = {
     'default':
      {
@@ -20,13 +19,15 @@ DATABASES = {
 # Development-specific apps
 INSTALLED_APPS += [
     'drf_spectacular',
+    'drf_spectacular_sidecar',
     'debug_toolbar',
     'silk',
 ]
 
 MIDDLEWARE += [
     'silk.middleware.SilkyMiddleware',
-    #'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'common.middleware.query.QueryCountDebugMiddleware'
 ]
 
 INTERNAL_IPS = ['127.0.0.1']
@@ -36,3 +37,10 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # CORS - Allow all in development
 CORS_ALLOW_ALL_ORIGINS = True
+
+REST_FRAMEWORK.update({
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ]
+})

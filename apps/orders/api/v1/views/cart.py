@@ -122,11 +122,13 @@ class CartViewSet(viewsets.ModelViewSet):
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             f"restaurant_{order.restaurant_id}",
-            {"type": "send_notification", "message": f"New order placed: {order.order_number}"}
+            {"type": "send.notification",
+            "message": f"New order placed: {order.order_number}"},
         )
         async_to_sync(channel_layer.group_send)(
             f"customer_{order.customer_id}",
-            {"type": "send_notification", "message": f"Order placed: {order.order_number}"}
+            {"type": "send.notification",
+            "message": f"Order placed: {order.order_number}"},
         )
 
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)

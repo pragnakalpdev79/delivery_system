@@ -16,6 +16,7 @@ class CustomerConsumer(AsyncWebsocketConsumer):
         self.room_name = self.scope["url_route"]["kwargs"]["user_id"]
         self.room_group_name = f'customer_{self.room_name}'
         self.user = self.scope.get('user')
+        print("trying to connect")
 
         if not self.user or not self.user.is_authenticated:
             await self.close()
@@ -46,6 +47,9 @@ class CustomerConsumer(AsyncWebsocketConsumer):
                 "message": message,
             }
         )
+    async def send_notification(self, event):
+        logger.info(f" sending -- {event["message"]}")
+        await self.send(text_data=json.dumps({"notification": event["message"]}))
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps({"message": event["message"]}))
@@ -68,11 +72,13 @@ class OrderConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
+        logger.info("disconnecting")
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
     async def receive(self, text_data):
         payload = json.loads(text_data)
         message = payload.get("message", "")
+        logger.info(f" rec msg -- {message}")
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -80,9 +86,41 @@ class OrderConsumer(AsyncWebsocketConsumer):
                 "message": message,
             }
         )
-
-    async def chat_message(self, event):
-        await self.send(text_data=json.dumps({"message": event["message"]}))
-
     async def send_notification(self, event):
+        logger.info(f" sending -- {event["message"]}")
+        await self.send(text_data=json.dumps({"notification": event["message"]}))
+
+#==============================================================================
+# 2. Restaurant Room
+class RestoConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.room_name = self.scope["url_route"]["kwargs"]["order_id"]
+        self.room_group_name = f'restaurant_{self.room_name}'
+        self.user = self.scope.get('user')
+
+        if not self.user or not self.user.is_authenticated and not self.user.utype == 'r' :
+            await self.close()
+            return
+
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+        logger.info(f"resto ws connected -- owner {self.user.id} room {self.room_group_name}")
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        logger.info("disconnecting")
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+
+    async def receive(self, text_data):
+        payload = json.loads(text_data)
+        message = payload.get("message", "")
+        logger.info(f" rec msg -- {message}")
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                "type": "chat_message",
+                "message": message,
+            }
+        )
+    async def send_notification(self, event):
+        logger.info(f" sending -- {event["message"]}")
         await self.send(text_data=json.dumps({"notification": event["message"]}))

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include,re_path
 from config import settings
 from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
@@ -20,3 +20,9 @@ urlpatterns = [
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ] + static(settings.base.STATIC_URL, document_root=settings.base.STATIC_ROOT)
+
+if settings.development.DEBUG:
+    urlpatterns += [
+        path("__debug__/",include("debug_toolbar.urls")),
+        re_path(r'^silk/', include('silk.urls', namespace='silk')),
+    ]

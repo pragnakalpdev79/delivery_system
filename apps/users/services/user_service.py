@@ -5,6 +5,7 @@ import logging
 from django.contrib.auth.models import Group
 from django.db import transaction
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.exceptions import ValidationError
 
 # Local Imports
 from apps.users.models import CustomUser

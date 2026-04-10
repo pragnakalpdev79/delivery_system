@@ -25,6 +25,7 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    'django.contrib.gis',
     'rest_framework',
     'corsheaders',
     'admin_interface',
@@ -51,6 +52,7 @@ AUTH_USER_MODEL = 'users.CustomUser'
 
 # Middleware
 MIDDLEWARE = [
+    'django.middleware.gzip.GZipMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -68,6 +70,9 @@ SILENCED_SYSTEM_CHECKS = ["security.W019"]
 ROOT_URLCONF = 'config.urls'
 
 REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES' : [
+        'common.renderers.OrjsonRenderer',
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES' : [
         'rest_framework_simplejwt.authentication.JWTAuthentication'],
     # 'DEFAULT_PERMISSION_CLASSES' : [
@@ -87,7 +92,7 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter',
     ],
     'DEFAULT_SCHEMA_CLASS' : 'drf_spectacular.openapi.AutoSchema',
-    #'EXCEPTION_HANDLER' : 'common.exceptions.custom_exception_handler',
+    'EXCEPTION_HANDLER' : 'common.exceptions.custom_exception_handler',
         'DEFAULT_THROTTLE_CLASSES' : [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',
@@ -101,8 +106,10 @@ REST_FRAMEWORK = {
         'location_update': '500/hour',
     },
     'DEFAULT_VERSIONING_CLASS' : 'rest_framework.versioning.URLPathVersioning',
-    'DEFAULT_VERSION': None,
+    'DEFAULT_VERSION': 'v1',
     'ALLOWED_VERSIONS' : ['v1','v2'],
+    'DEFAULT_PAGINATION_CLASS' : 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 2,
 }
 
 SIMPLE_JWT = {

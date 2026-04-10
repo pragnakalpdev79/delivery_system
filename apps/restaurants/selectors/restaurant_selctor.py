@@ -14,6 +14,12 @@ class RestaurantSelector:
         return queryset
     
     @staticmethod
-    def get_resto():
+    def get_resto(pk):
         queryset = RestrauntModel.objects.prefetch_related('menu','review_for').get(id=pk)
         return queryset
+    
+    @staticmethod
+    def get_popular():
+        queryset = RestrauntModel.objects.order_by('-total_reviews')
+        return queryset
+        

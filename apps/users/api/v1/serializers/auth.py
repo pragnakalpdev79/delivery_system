@@ -35,6 +35,10 @@ class CustomUserRegistrationSerializer(serializers.ModelSerializer):
         if data['password'] != data['password_confirm']:
             raise serializers.ValidationError("Passwords dont match")
         data.pop('password_confirm')
+    
+        if 'utype' not in data:
+            raise serializers.ValidationError('Please specify customer Type')
+
         return data
 
     
