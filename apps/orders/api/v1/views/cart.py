@@ -209,6 +209,10 @@ class OrderViewSet(viewsets.ModelViewSet):
         if request.user.utype != 'r':
             return Response({'error': 'Only restaurant owner can assign driver'}, status=status.HTTP_403_FORBIDDEN)
 
+        if order.restaurant.owner_id != request.user.id:
+           return Response({'error': 'You can only assign drivers to your own restaurant orders'}, status=status.HTTP_403_FORBIDDEN)
+
+
         driver_id = request.data.get('driver_id')
         try:
             driver = CustomUser.objects.get(id=driver_id, utype='d')
@@ -224,14 +228,38 @@ class OrderViewSet(viewsets.ModelViewSet):
         dp.is_available = False
         dp.save(update_fields=['is_available'])
         return Response({'message': f'driver {driver.email} assigned'})
+    
+    @action(detail=False, methods=['get'])
+    def active(self, request):
+        qs = self.get_queryset().exclude(status__in=[Order.STATE_DL,Order.STATE_CD])
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            serializer = self.get_serializer(page,many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(qs,many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def history(self, request):
+        qs = self.get_queryset().filter(status__in=[Order.STATE_DL,Order.STATE_CD])
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            serializer = self.get_serializer(page,many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(qs,many=True)
+        return Response(serializer.data)
+
 
     @action(detail=True, methods=['post'])
     def cancel(self, request, pk=None):
         order = self.get_object()
+        if order.customer_id != request.user.id:
+            return Response({'error': 'only the customer can cancel their order'}, status=status.HTTP_403_FORBIDDEN)
         if not order.can_cancel():
             return Response({'error': 'order can not be cancelled now'}, status=status.HTTP_400_BAD_REQUEST)
         order.rreject()
         return Response({'message': 'order cancelled'})
+
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

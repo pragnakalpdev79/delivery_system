@@ -22,5 +22,9 @@ def post_save_user(sender,instance,created,**kwargs):
         if instance.check_if_restaurant:
             logger.info("A restaurant owner registered")
         if instance.check_if_driver:
-            newprofile = DriverProfile.objects.create(user=instance,vehicle_number=f"Temp_{instance.phone_number[-3:]}",license_number=f"TempL_{instance.phone_number[-3:]}")
+            newprofile = DriverProfile.objects.create(
+                user=instance,
+                vehicle_number=f"Temp_{instance.pk.hex[:8]}",
+                license_number=f"TempL_{instance.pk.hex[:8]}"
+            )
             logger.info(f"New Driver Profile for {instance.email} Completed!!")

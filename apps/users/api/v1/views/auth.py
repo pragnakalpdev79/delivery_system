@@ -142,18 +142,21 @@ class UserLogoutView(viewsets.ModelViewSet):
     http_method_names = ['post']
 
     def create(self,request):
+        refresh_token = request.data.get("refresh_token")
+        if not refresh_token:
+            return Response({
+                'error' : 'refresh_token is required'
+            },status=status.HTTP_400_BAD_REQUEST)
         try:
-            refresh_token = request.data["refresh_token"]
             token = RefreshToken(refresh_token)
             token.blacklist()
-        
             return Response({
                 'message' : 'Log out successful',
             },status=status.HTTP_205_RESET_CONTENT)
-        
         except Exception as e:
             logger.info(f"An error occured in log out == {e}")
             return Response({
-                'error' : 'something went wrong'
+                'error' : 'Invalid or expired token'
             },status=status.HTTP_400_BAD_REQUEST)         
+       
 

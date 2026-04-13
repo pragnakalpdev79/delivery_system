@@ -27,6 +27,8 @@ class UserService:
              phone_number=kwargs.get('phone_number'),
         )
 
+        group = None
+
         if user.check_if_customer:
             group = Group.objects.get(name='Customers')
             user.groups.add(group)
@@ -44,10 +46,10 @@ class UserService:
 
         refresh = RefreshToken.for_user(user)
 
-
+        role_name = group.name if group else user.get_utype_display()
         rep = {
             'user' : user.email,
-            'message' : f"You have been successfully registered as a {group}",
+            'message' : f"You have been successfully registered as a {role_name}",
             'refresh' : str(refresh),
             'access' : str(refresh.access_token),
         }

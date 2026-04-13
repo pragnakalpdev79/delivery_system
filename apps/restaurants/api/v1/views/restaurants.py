@@ -103,6 +103,8 @@ class RestaurantViewSet(PerfomanceLoggingMixin,viewsets.ModelViewSet):
     ordering = ['-average_rating']
     filterset_class = RestaurantFilter
 
+    queryset = RestrauntModel.objects.filter(deleted_at=None)
+
     def get_serializer_class(self):
         logger.info(self.action)
         if self.action == 'list':
@@ -160,20 +162,18 @@ class RestaurantViewSet(PerfomanceLoggingMixin,viewsets.ModelViewSet):
 #==============================================================================
 # 3. REGISTER A NEW RESTAURANT - BY OWNER ONLY
     def create(self,request,*args,**kwargs):
-        #DONE
-        logger.info(request.user.has_perm("add_restrauntmodel"))
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        #self.perform_create(serializer)
-        RestaurantService.create_resto(**serializer.data)
+        RestaurantService.create_resto(owner=request.user,**serializer.validated_data)
         
         return Response(
             {
             'success': True,
             'message' : "Your restaurant has been successfully registered with us",
-            'data' : serializer.data,
+            'data' : serializer.validated_data,
         },
         status=status.HTTP_201_CREATED)
+
 
 
 #==============================================================================
@@ -235,7 +235,7 @@ class RestaurantViewSet(PerfomanceLoggingMixin,viewsets.ModelViewSet):
     def deleter(self,request,pk):
         print(request.user)
         #resto = self.get_queryset().get(id=pk)
-        resto = RestaurantSelector.get_resto(id=pk)
+        resto = RestaurantSelector.get_resto(pk=pk)
         if resto.owner != request.user:
             return Response({
                 "error" : "not allowed",

@@ -58,3 +58,17 @@ class DriverProfileSerializeru(serializers.ModelSerializer):
     class Meta:
         model = DriverProfile
         fields = ['avatar', 'vehicle_number', 'license_number', 'is_available']
+
+    def validate_avatar(self, value):
+        if value:
+            if value.size > 5 * 1024 * 1024:
+                raise serializers.ValidationError("Image size cannot exceed 5mb")
+            ext = value.name.split('.')[-1].lower()
+            if ext not in ['jpg', 'jpeg', 'png']:
+                raise serializers.ValidationError("Only jpg, jpeg, png allowed")
+            try:
+                img = Image.open(value)
+                img.verify()
+            except Exception:
+                raise serializers.ValidationError("Invalid Image format")
+        return value

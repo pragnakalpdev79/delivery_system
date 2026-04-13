@@ -42,10 +42,19 @@ class CartService:
             raise ValueError("all items must belong to same restaurant")
 
         restaurant = cart_items.first().menu_item.restaurant
+
+        #MINIMUM ORDER CHECK
+        cart_total = sum(ci.menu_item.price * ci.quantity for ci in cart_items)
+        if cart_total < restaurant.minimum_order:
+            raise ValueError(f"Minimum order amount is {restaurant.minimum_order}")
+
         try:
             dadr = user.customer_profile.default_adress
         except Exception:
+            dadr = None
+        if not dadr:
             raise ValueError("default delivery address not found")
+
 
         order = Order.objects.create(
             customer=user,
@@ -56,14 +65,17 @@ class CartService:
         )
 
         for ci in cart_items:
-            OrderItem.objects.create(
+            oi = OrderItem(
                 order=order,
                 menu_item=ci.menu_item,
                 quantity=ci.quantity,
                 uprice=ci.menu_item.price,
             )
+            oi._skip_recalc = True
+            oi.save()
 
         order.calculate_total()
+
         order.calculate_eta()
         cart_items.delete()
         return order

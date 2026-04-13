@@ -35,7 +35,7 @@ class CustomUser(AbstractUser,SoftDeleteModel,TimestampedModel):
     USER_TYPE = ( 
         ('c','Customer'),
         ('r','Restaurant Owner'),
-        ('d','Delivery Driver   '),
+        ('d','Delivery Driver'),
     )
     utype = models.CharField(max_length=1,choices=USER_TYPE,blank=True,default='c',help_text='User Type') #USER TYPE
     deleted_at = models.DateTimeField(null=True,blank=True)
@@ -96,7 +96,7 @@ class address(TimestampedModel):
 
     def save(self,*args,**kwargs):
         if self.is_default:
-            usradrs = address.objects.filter(adrofuser=self.adrofuser)
+            usradrs = address.objects.filter(adrofuser=self.adrofuser).exclude(pk=self.pk) 
             usradrs.update(is_default=False)
         if self.latitude and self.longitude and not self.location:
             self.location = Point(float(self.longitude),float(self.latitude),srid=4326)
@@ -115,8 +115,9 @@ class CustomerProfile(TimestampedModel):
 
     @property
     def default_adress(self):
-        defadr = address.objects.get(adrofuser=self.user,is_default=True)
+        defadr = address.objects.filter(adrofuser=self.user,is_default=True).first()
         return defadr
+
 
     @property
     def saved_addresses(self):

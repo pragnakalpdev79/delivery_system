@@ -11,6 +11,7 @@ from django.contrib.gis.geos import Point
 from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
+from django.db.models import Avg 
 
 #Local Imports
 from common.models.timestamped import TimestampedModel
@@ -70,10 +71,11 @@ class RestrauntModel(TimestampedModel):
         super().save(*args,**kwargs)
 
     def is_currently_open(self):
-        now = datetime.datetime.now().time()
+        now = timezone.localtime(timezone.now()).time()
         result = self.opening_time <= now <= self.closing_time
         logger.info(f"{self.name} is_currently_open: {result}")
         return result
+
     
     def update_average_rating(self):
         avg = self.review_for.aggregate(avg=Avg('rating'))['avg']

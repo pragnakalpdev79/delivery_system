@@ -54,4 +54,7 @@ class ReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("You can review only your own order")
         if order.status != Order.STATE_DL:
             raise serializers.ValidationError("Only delivered orders can be reviewed")
+        
+        if Review.objects.filter(customer=request.user,order=order).exists():
+            raise serializers.ValidationError("You have already reviewed this order")
         return attrs

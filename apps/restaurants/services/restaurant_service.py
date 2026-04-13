@@ -42,3 +42,4 @@ class RestaurantService:
             'description' : new_resto.description,
             'address' : new_resto.address,
         }
+        return rep

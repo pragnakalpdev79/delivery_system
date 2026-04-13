@@ -2,9 +2,11 @@
 import logging
 import datetime
 
+
 # Third-Party Imports (Django)
 from rest_framework import serializers
 from PIL import Image
+from django.utils import timezone
 
 # Local Imports
 from apps.restaurants.models import RestrauntModel, MenuItem
@@ -27,8 +29,9 @@ class RestoListSerializer(serializers.ModelSerializer):
                   'logo', 'banner', 'delivery_fee', 'minimum_order', 'average_rating', 'total_reviews', 'is_open_now']
 
     def get_is_open_now(self, obj):
-        now = datetime.datetime.now().time()
+        now = timezone.localtime(timezone.now()).time()
         return obj.opening_time <= now <= obj.closing_time
+
 
 
 class RestoSerializer(serializers.ModelSerializer):

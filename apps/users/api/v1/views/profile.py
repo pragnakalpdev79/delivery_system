@@ -39,6 +39,12 @@ class CustomerProfileView(viewsets.ModelViewSet):
     permission_classes = [IsCustomer]
     http_method_names=['get','patch']
 
+    def get_serializer_class(self):
+        if self.action == 'partial_update':
+            return CustomProfileSerializer
+        return CustomerProfileSerializerv
+
+
     def list(self, request):
         #DONE
         profile = ProfileSelector.get_user_profile(request.user)
@@ -89,6 +95,12 @@ class CustomerProfileView(viewsets.ModelViewSet):
 class DriverProfileView(viewsets.ModelViewSet):
     permission_classes = [IsDriver]
     http_method_names=['get','patch']
+
+    def get_serializer_class(self):
+        if self.action == 'partial_update':
+            return DriverProfileSerializeru
+        return DriverProfileSerializer
+
 
     def list(self, request):
         #DONE

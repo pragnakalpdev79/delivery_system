@@ -5,6 +5,8 @@ from decouple import config
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0','127.0.0.1:58306']
+
+
 DATABASES = {
     'default':
      {
@@ -16,6 +18,7 @@ DATABASES = {
         'PORT' : config('DB_PORT'),
     }
 }
+
 # Development-specific apps
 INSTALLED_APPS += [
     'drf_spectacular',

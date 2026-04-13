@@ -17,7 +17,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 # Local Imports
 
 from apps.users.permissions import IsRestaurantOwner
-from ..serializers.menu import MenuSerializer
+from ..serializers.menu import MenuSerializer,MenuListSerializer,MenuUSerializer
 from ....filters import MenuItemFilter
 from ....services.menu_service import MenuService
 
@@ -63,6 +63,9 @@ class MenuItemViewSet(viewsets.ModelViewSet):
     ordering_fields = ['price','name','created_at']
     ordering = ['name']
     #http_method_names = ['get', 'post','patch']
+
+    #queryset = MenuItem.objects.all() 
+
 
     def get_serializer_class(self):
         logger.info(self.action)

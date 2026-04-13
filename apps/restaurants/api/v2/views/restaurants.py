@@ -89,9 +89,9 @@ class RestaurantViewSet(viewsets.ModelViewSet):
         elif self.action == 'menu':
             return MenuItemSerializer
         elif self.action == "partial_update":
-            return RestoUpdateSerializer
+            return RestoUpdateSerializer  
 
-        print("none")
+        #print("none")
         return RestoListSerializer
     
 #==============================================================================
