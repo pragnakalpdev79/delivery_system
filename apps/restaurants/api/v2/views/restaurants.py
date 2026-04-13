@@ -12,7 +12,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 # Local Imports
 from ....selectors.restaurant_selctor import RestaurantSelector
-from ..serializers.restaurants import RestoListSerializer,RestoCreateSerializer,RestoSerializer,MenuItemSerializer,RestoUpdateSerializer 
+from ..serializers.restaurants import RestoListSerializer,RestoSerializer
 
 logger = logging.getLogger('user')
 
