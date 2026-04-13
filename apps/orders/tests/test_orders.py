@@ -72,6 +72,7 @@ class TestCartAndOrders:
         logger.info(customer.id)
         addr = AddressFactory(adrofuser=customer, is_default=True)
         resto = RestaurantFactory(owner=owner)
+        logger.info("before error")
         driver = CustomUserFactory(utype="d")
         logger.info(driver.id)
 

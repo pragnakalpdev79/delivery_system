@@ -21,6 +21,7 @@ from apps.users.permissions import IsRestaurantOwner
 from ..serializers.menu import MenuSerializer,MenuListSerializer,MenuUSerializer
 from ....filters import MenuItemFilter
 from ....services.menu_service import MenuService
+from ....models import MenuItem
 
 logger = logging.getLogger('user')
 

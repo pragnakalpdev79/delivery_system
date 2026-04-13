@@ -18,7 +18,7 @@ class CustomUserFactory(DjangoModelFactory):
     username = factory.Sequence(lambda n: f"user{n}")
     first_name = "Test"
     last_name = "User"
-    phone_number = factory.Sequence(lambda n: f"+91990000{n:04d}")
+    phone_number = factory.Sequence(lambda n: f"+91990000{n:02d}")
     utype = "c"
     password = factory.PostGenerationMethodCall("set_password", "pass12345")
 
@@ -46,9 +46,12 @@ class DriverProfileFactory(DjangoModelFactory):
     class Meta:
         model = DriverProfile
 
+    logger.info("test")
     user = factory.SubFactory(CustomUserFactory, utype="d")
     vehicle_number = factory.Sequence(lambda n: f"GJ01AB{n:04d}")
+    #logger.info(vehicle_number)
     license_number = factory.Sequence(lambda n: f"LIC{n:06d}")
+    #logger.info(license_number)
     is_available = True
 
 

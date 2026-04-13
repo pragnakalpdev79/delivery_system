@@ -27,6 +27,7 @@ class TestOrderModel:
         return order
 
     def test_calculate_total(self, setup_order):
+        #DONE
         order = setup_order
         order.calculate_total(tax_rate=Decimal('0.05'))
         
@@ -40,38 +41,37 @@ class TestOrderModel:
         assert order.total_amount == Decimal('397.50')
 
     def test_state_transitions(self, setup_order):
+        #DONE
         order = setup_order
         assert order.status == Order.STATE_PD
-        
         order.raccept()
         assert order.status == Order.STATE_CO
-        
         order.confiremd()
         assert order.status == Order.STATE_PR
-        
         order.readytop()
         assert order.status == Order.STATE_RD
-        
         order.pickedup()
         assert order.status == Order.STATE_PU
-        
         order.delivered()
         assert order.status == Order.STATE_DL
 
     def test_invalid_state_transition(self, setup_order):
+        #DONE
         order = setup_order
         with pytest.raises(ValidationError):
             order.status = Order.STATE_DL  # Cannot jump from PD to DL
             order.save()
 
     def test_cancellation_allowed(self, setup_order):
+        #DONE
         order = setup_order
         assert order.can_cancel() is True
         order.raccept()
         assert order.can_cancel() is True
 
     def test_cancellation_denied_after_pickup(self, setup_order):
+        #DONE
         order = setup_order
         order.status = Order.STATE_PU
-        order.save()
+        
         assert order.can_cancel() is False

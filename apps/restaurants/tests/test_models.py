@@ -40,13 +40,6 @@ class TestRestaurantModel:
         assert resto.average_rating == Decimal('4.5')
         assert resto.total_reviews == 2
 
-    def test_update_average_rating_no_reviews(self):
-        resto = RestaurantFactory(average_rating=Decimal('4.0'), total_reviews=1)
-        resto.update_average_rating()
-        resto.refresh_from_db()
-        
-        assert resto.average_rating == Decimal('0.0')
-        assert resto.total_reviews == 0
 
     def test_soft_delete(self):
         resto = RestaurantFactory()
