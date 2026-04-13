@@ -253,18 +253,33 @@ class RestaurantViewSet(PerfomanceLoggingMixin,viewsets.ModelViewSet):
 
 #==============================================================================
 # 7. UPDATE RESTAURANT - CACHE INVALIDATION ON PATCH
-
-    def partial_update(self,request,pk=None):
+    def partial_update(self, request, pk=None):
         instance = self.get_object()
-        serializer = self.get_serializer(instance,data=request.data,partial=True)
+        
+        if instance.owner != request.user:
+            return Response(
+                {"error": "Not allowed to edit a restaurant you do not own"}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-
         self.perform_update(serializer)
-        return Response({
-            "message" : "Works",
-            "requested" : pk,
-            'data': serializer.data,
-        })
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        
+        if hasattr(cache, 'delete_pattern'):
+            cache.delete_pattern('*resto_list*')
+            cache.delete_pattern(f'*resto_{instance.pk}*')
+            cache.delete_pattern('*popular_restos*')
+        else:
+            cache.delete('resto_list')
+            cache.delete(f'resto_{instance.pk}')
+            cache.delete('popular_restos')
+            
+        logger.info(f"cache cleared after restaurant update {instance.pk}")
+
 
     def perform_update(self,serializer):
 

@@ -12,6 +12,7 @@ from rest_framework.permissions import AllowAny,IsAuthenticated,IsAdminUser,IsAu
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.exceptions import PermissionDenied
 
 
 # Local Imports
@@ -64,7 +65,7 @@ class MenuItemViewSet(viewsets.ModelViewSet):
     ordering = ['name']
     #http_method_names = ['get', 'post','patch']
 
-    #queryset = MenuItem.objects.all() 
+    queryset = MenuItem.objects.all() 
 
 
     def get_serializer_class(self):
@@ -110,22 +111,17 @@ class MenuItemViewSet(viewsets.ModelViewSet):
 
     def partial_update(self, request, pk=None):
         logger.info("update called")
-        print(pk)
         try:
             item = MenuItem.objects.get(id=pk)
+            
+            if item.restaurant.owner != request.user:
+                return Response(
+                    {"error": "Not allowed to edit an item you do not own"}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+                
         except MenuItem.DoesNotExist:
-            return Response({
-                "error": "Menu-Item not found"
-            },status=status.HTTP_404_NOT_FOUND)
-        serializer = self.get_serializer(item,data=request.data,partial=True)
-        logger.info("Serializer called")
-        logger.info(serializer)
-        serializer.is_valid(raise_exception=True)
-        logger.info("validated")
-        self.perform_update(serializer)
-        return Response({
-            "message" : "A Patch request"
-        })
+            return Response({"error": "Menu-Item not found"}, status=status.HTTP_404_NOT_FOUND)
 
     def perform_update(self,serializer):
         logger.info("In perform update")
@@ -135,9 +131,20 @@ class MenuItemViewSet(viewsets.ModelViewSet):
         cache.delete(f'resto_{instance.restaurant_id}')
         logger.info(f"cache cleared after menu item update {instance.pk}")
 
-    def perform_destroy(self,instance):
+
+    def perform_destroy(self, instance):
+        
+        
+        if instance.restaurant.owner != self.request.user:
+            raise PermissionDenied("You can only delete items from your own restaurant.")
+            
         resto_id = instance.restaurant_id
         instance.delete()
-        cache.delete(f'menuof__{resto_id}')
-        cache.delete(f'resto_{resto_id}')
+        if hasattr(cache, 'delete_pattern'):
+            cache.delete_pattern(f'*menuof__{resto_id}*')
+            cache.delete_pattern(f'*resto_{resto_id}*')
+        else:
+            cache.delete(f'menuof__{resto_id}')
+            cache.delete(f'resto_{resto_id}')
+            
         logger.info(f"cache cleared after menu item delete")
