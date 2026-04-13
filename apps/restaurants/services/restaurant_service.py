@@ -7,7 +7,7 @@ from django.db.models import Count
 from django.db import transaction
 
 # Local Imports
-from apps.restaurants.models import RestrauntModel
+from apps.restaurants.models import RestaurantModel
 
 
 logger = logging.getLogger('main')
@@ -16,7 +16,7 @@ class RestaurantService:
     @staticmethod
     @transaction.atomic
     def create_resto(**kwargs):
-        new_resto = RestrauntModel.objects.create(
+        new_resto = RestaurantModel.objects.create(
             owner = kwargs.get('owner'),
             name = kwargs.get('name'),
             description = kwargs.get('description'),
@@ -31,6 +31,8 @@ class RestaurantService:
             delivery_fee = kwargs.get('delivery_fee'),
             minimum_order = kwargs.get('minimum_order'),
             is_open = kwargs.get('is_open'),
+            latitude = kwargs.get('latitude'),
+            longitude = kwargs.get('longitude'),
         )
         cache.delete('resto_list')
         cache.delete('popular_restos')

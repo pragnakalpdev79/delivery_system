@@ -35,7 +35,7 @@ class UserService:
             logger.info(f" {user}==>{group}")
 
         if user.check_if_restaurant:
-            group = Group.objects.get(name='RestrauntOwners')
+            group = Group.objects.get(name='RestaurantOwners')
             user.groups.add(group)
             logger.info(f" {user}==>{group}")
 

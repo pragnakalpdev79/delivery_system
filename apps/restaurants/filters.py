@@ -1,5 +1,5 @@
 import django_filters
-from apps.restaurants.models import RestrauntModel, MenuItem
+from apps.restaurants.models import RestaurantModel, MenuItem
 
 class RestaurantFilter(django_filters.FilterSet):
     delivery_fee__lte = django_filters.NumberFilter(field_name='delivery_fee', lookup_expr='lte')
@@ -7,7 +7,7 @@ class RestaurantFilter(django_filters.FilterSet):
     average_rating__gte = django_filters.NumberFilter(field_name='average_rating', lookup_expr='gte')
 
     class Meta:
-        model = RestrauntModel
+        model = RestaurantModel
         fields = ['cuisine_type', 'is_open', 'delivery_fee__lte', 'minimum_order__lte', 'average_rating__gte']
 
 class MenuItemFilter(django_filters.FilterSet):

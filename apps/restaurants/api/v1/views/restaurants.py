@@ -103,7 +103,7 @@ class RestaurantViewSet(PerfomanceLoggingMixin,viewsets.ModelViewSet):
     ordering = ['-average_rating']
     filterset_class = RestaurantFilter
 
-    queryset = RestrauntModel.objects.filter(deleted_at=None)
+    queryset = RestaurantModel.objects.filter(deleted_at=None)
 
     def get_serializer_class(self):
         logger.info(self.action)
@@ -153,6 +153,7 @@ class RestaurantViewSet(PerfomanceLoggingMixin,viewsets.ModelViewSet):
 # 2. GET ONE RESTAURANT BY ITS ID
     def retrieve(self, request, pk=None):
         resto = RestaurantSelector.get_resto(pk=pk)
+        self.check_object_permissions(request,resto)
         serializer = self.get_serializer(resto)
         return Response({
             "message" : "Here are the restaurant details",

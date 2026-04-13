@@ -65,7 +65,7 @@ MIDDLEWARE = [
 
 X_FRAME_OPTIONS = "SAMEORIGIN" 
 
-SILENCED_SYSTEM_CHECKS = ["security.W019"] 
+
 
 ROOT_URLCONF = 'config.urls'
 
@@ -75,9 +75,9 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES' : [
         'rest_framework_simplejwt.authentication.JWTAuthentication'],
-    # 'DEFAULT_PERMISSION_CLASSES' : [
-    #     'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-    # ],
+    'DEFAULT_PERMISSION_CLASSES' : [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
     'DEFAULT_FILTER_BACKENDS' : [
         'django_filters.rest_framework.DjangoFilterBackend',
         'rest_framework.filters.SearchFilter',

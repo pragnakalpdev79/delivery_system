@@ -10,6 +10,7 @@ logger = logging.getLogger('main')
 @pytest.mark.django_db
 class TestSignals:
     def test_driver_delivery_stats_updated_on_delivery(self):
+        #DONE
         driver_user = CustomUserFactory(utype='d')
         #dp = DriverProfileFactory(user=driver_user, total_deliveries=0)
         

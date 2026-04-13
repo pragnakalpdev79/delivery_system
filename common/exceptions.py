@@ -13,8 +13,7 @@ from rest_framework.exceptions import (
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from django.conf import settings
 import logging
-import traceback
-import os
+
 
 logger = logging.getLogger(__name__)
 
@@ -29,37 +28,6 @@ def custom_exception_handler(exc, context):
     # Request object
     request = context.get('request')
 
-#CODE FOR PRODUCTION AND SHORT WITH TRACEBACK RESPONSE
-    # if response is not None:
-    #     # os.system('clear')
-    #     if settings.DEBUG:
-    #         print("debug!--")
-    #         error_details = {
-    #             'message' : str(exc),
-    #             'traceback' : traceback.format_exc() if hasattr(exc,'__traceback__') else None,
-    #             'context' : {
-    #                 'view' : context.get('view').__class__.__name__ if context.get('view') else None,
-    #                 'request_method' : context.get('request').method if context.get('request') else None,
-    #             }
-    #         }
-    #     else:
-    #         print("creating custom response")
-    #         error_details = {
-    #             'message' : get_error_message(response.status_code,exc) if 'get_error_message' in globals() else 'An error occured',
-    #             'code' : 'error'
-    #         }
-    #     print("creating custom response")
-    #     custom_response_data = {
-    #         'success' : False,
-    #         'error' : {
-    #             'status_code' : response.status_code,
-    #             **error_details,
-    #             'type' : exc.__class__.__name__,
-    #         }
-    #     }
-    #     print(custom_response_data)
-    #     response.data = custom_response_data
-    #     return response
     
 #CUSTOM EXCPETION HANDLER FOR USER-FRIENDLY ERROR MESSAGES
     if response is not None:

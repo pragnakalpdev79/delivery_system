@@ -3,14 +3,15 @@ import logging
 from factory.django import DjangoModelFactory
 from decimal import Decimal
 
-from apps.users.models import CustomUser, address, CustomerProfile
+from apps.users.models import CustomUser, Address, CustomerProfile
 from common.models.driver import DriverProfile
-from apps.restaurants.models import RestrauntModel, MenuItem
+from apps.restaurants.models import RestaurantModel, MenuItem
 from apps.orders.models import CartItem, Order, OrderItem, Review
 
 logger = logging.getLogger('main')
 
 class CustomUserFactory(DjangoModelFactory):
+    #DONE
     class Meta:
         model = CustomUser
 
@@ -24,8 +25,9 @@ class CustomUserFactory(DjangoModelFactory):
 
 
 class AddressFactory(DjangoModelFactory):
+    #DONE
     class Meta:
-        model = address
+        model = Address
 
     adrname = factory.Sequence(lambda n: f"Home-{n}")
     address = "Test Address, City"
@@ -36,6 +38,7 @@ class AddressFactory(DjangoModelFactory):
 
 
 class CustomerProfileFactory(DjangoModelFactory):
+    #DONE
     class Meta:
         model = CustomerProfile
 
@@ -43,6 +46,7 @@ class CustomerProfileFactory(DjangoModelFactory):
 
 
 class DriverProfileFactory(DjangoModelFactory):
+    #DONE
     class Meta:
         model = DriverProfile
 
@@ -56,8 +60,9 @@ class DriverProfileFactory(DjangoModelFactory):
 
 
 class RestaurantFactory(DjangoModelFactory):
+    #DONE
     class Meta:
-        model = RestrauntModel
+        model = RestaurantModel
 
     owner = factory.SubFactory(CustomUserFactory, utype="r")
     name = factory.Sequence(lambda n: f"Resto-{n}")
@@ -74,6 +79,7 @@ class RestaurantFactory(DjangoModelFactory):
 
 
 class MenuItemFactory(DjangoModelFactory):
+    #DONE
     class Meta:
         model = MenuItem
 
@@ -88,6 +94,7 @@ class MenuItemFactory(DjangoModelFactory):
 
 
 class CartItemFactory(DjangoModelFactory):
+    #DONE
     class Meta:
         model = CartItem
 
@@ -97,6 +104,7 @@ class CartItemFactory(DjangoModelFactory):
 
 
 class OrderFactory(DjangoModelFactory):
+    #DONE
     class Meta:
         model = Order
 
@@ -109,6 +117,7 @@ class OrderFactory(DjangoModelFactory):
 
 
 class OrderItemFactory(DjangoModelFactory):
+    #DONE
     class Meta:
         model = OrderItem
 
@@ -119,6 +128,7 @@ class OrderItemFactory(DjangoModelFactory):
 
 
 class ReviewFactory(DjangoModelFactory):
+    #DONE
     class Meta:
         model = Review
 

@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='RestrauntModel',
+            name='RestaurantModel',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created_at', models.DateTimeField(auto_now_add=True, db_index=True)),
@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
                 ('latitude', models.DecimalField(blank=True, decimal_places=6, help_text='Latitude of restaurant', max_digits=9, null=True)),
                 ('longitude', models.DecimalField(blank=True, decimal_places=6, help_text='Longitude of restaurant', max_digits=9, null=True)),
                 ('location', django.contrib.gis.db.models.fields.PointField(blank=True, help_text='GPS coordinates for distance calculation', null=True, srid=4326)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, related_name='restraunt_owner', to=settings.AUTH_USER_MODEL)),
+                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, related_name='Restaurant_owner', to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'abstract': False,
@@ -62,7 +62,7 @@ class Migration(migrations.Migration):
                 ('is_available', models.BooleanField(default=True)),
                 ('preparation_time', models.PositiveIntegerField(default=3)),
                 ('foodimage', models.ImageField(blank=True, null=True, upload_to=apps.restaurants.models.MenuItem.file_path)),
-                ('restaurant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='menu', to='restaurants.restrauntmodel')),
+                ('restaurant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='menu', to='restaurants.Restaurantmodel')),
             ],
             options={
                 'abstract': False,

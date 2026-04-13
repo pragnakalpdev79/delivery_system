@@ -84,7 +84,7 @@ class CustomUser(AbstractUser,SoftDeleteModel,TimestampedModel):
 
 ############################################################################
 #  2. ADDRESS MODEL TO STORE ALL ADDRESSES
-class address(TimestampedModel):
+class Address(TimestampedModel):
     adrname = models.CharField(max_length=60,unique=True,help_text='Short name to identify the adress')
     address = models.TextField(help_text='Your full address')
     is_default = models.BooleanField()
@@ -96,7 +96,7 @@ class address(TimestampedModel):
 
     def save(self,*args,**kwargs):
         if self.is_default:
-            usradrs = address.objects.filter(adrofuser=self.adrofuser).exclude(pk=self.pk) 
+            usradrs = Address.objects.filter(adrofuser=self.adrofuser).exclude(pk=self.pk) 
             usradrs.update(is_default=False)
         if self.latitude and self.longitude and not self.location:
             self.location = Point(float(self.longitude),float(self.latitude),srid=4326)
@@ -115,13 +115,13 @@ class CustomerProfile(TimestampedModel):
 
     @property
     def default_adress(self):
-        defadr = address.objects.filter(adrofuser=self.user,is_default=True).first()
+        defadr = Address.objects.filter(adrofuser=self.user,is_default=True).first()
         return defadr
 
 
     @property
     def saved_addresses(self):
-        alladrs = address.objects.filter(adrofuser=self.user)
+        alladrs = Address.objects.filter(adrofuser=self.user)
         return alladrs
 
     @property
@@ -139,36 +139,3 @@ class CustomerProfile(TimestampedModel):
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
 
-# ############################################################################
-# #  4.DRIVER PROFILE
-# class DriverProfile(TimestampedModel):
-#     user = models.OneToOneField('CustomUser',on_delete=models.RESTRICT,related_name='driver_profile')
-#     avatar = models.ImageField(upload_to='user_avatars/',blank=True,null=True)
-#     VTYPE = (
-#         ('b','Bike'),
-#         ('s','Scooter'),
-#         ('c','Car'),
-#     )
-#     vehicle_type = models.CharField(max_length=1,choices=VTYPE,blank=True,default='b',help_text="Delivery partner's Vehicle Type")
-#     vehicle_number = models.CharField(max_length=10,unique=True)
-#     license_number = models.CharField(max_length=10,unique=True)
-#     is_available = models.BooleanField(default=True)
-#     total_deliveries = models.IntegerField(blank=True,null=True)
-#     average_rating = models.DecimalField(max_digits=2,decimal_places=1,default=0)
-
-#     def update_availability(self,available=True):
-#         #changing availability directly from this function
-#         self.is_available = available
-#         self.save(update_fields=['is_available'])
-#         logger.info(f"driver availability set to {available}")
-
-
-#     def get_delivery_stats(self):
-#         # get all delivered orders of requested user
-#         delivered = Order.objects.filter(driver=self.user,status='dl').count()
-#         logger.info(f"delivery stats for {self.user.email}: {delivered}")
-#         return {
-#             'total_deliveries': delivered,
-#             'average_rating': self.average_rating,
-#             'is_available': self.is_available,
-#         }

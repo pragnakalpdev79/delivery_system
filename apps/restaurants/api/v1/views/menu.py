@@ -81,7 +81,7 @@ class MenuItemViewSet(viewsets.ModelViewSet):
     # def get_queryset(self):
     #     qs = MenuItem.objects.all()
     #     if self.action == 'list':
-    #         resto = RestrauntModel.objects.filter(owner_id=self.request.user).first()
+    #         resto = RestaurantModel.objects.filter(owner_id=self.request.user).first()
     #         test = qs.filter(restaurant=resto)
     #         return test
     #     if self.action == 'create':

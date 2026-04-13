@@ -22,9 +22,9 @@ from apps.users.models import CustomUser
 logger = logging.getLogger('main')
 
 ############################################################################
-#  5.Restraunt-Model
-class RestrauntModel(TimestampedModel):
-    owner = models.ForeignKey(CustomUser,on_delete=models.RESTRICT,related_name='restraunt_owner')
+#  5.Restaurant-Model
+class RestaurantModel(TimestampedModel,SoftDeleteModel):
+    owner = models.ForeignKey(CustomUser,on_delete=models.RESTRICT,related_name='Restaurant_owner')
     name = models.CharField(max_length=50)
     description = models.TextField()
     CC = (
@@ -56,7 +56,7 @@ class RestrauntModel(TimestampedModel):
     minimum_order = models.DecimalField(default=0,decimal_places=0,max_digits=3)
     average_rating = models.DecimalField(max_digits=2,default=0,decimal_places=1)
     total_reviews = models.IntegerField(null=True,blank=True)
-    deleted_at = models.DateTimeField(null=True,blank=True)
+    #deleted_at = models.DateTimeField(null=True,blank=True)
     latitude = models.DecimalField(max_digits=9,decimal_places=6,null=True,blank=True,help_text='Latitude of restaurant')
     longitude = models.DecimalField(max_digits=9,decimal_places=6,null=True,blank=True,help_text='Longitude of restaurant')
     location = gis_models.PointField(srid=4326,null=True,blank=True,help_text='GPS coordinates for distance calculation')
@@ -85,16 +85,16 @@ class RestrauntModel(TimestampedModel):
             self.save(update_fields=['average_rating','total_reviews'])
             logger.info(f"updated rating for {self.name} to {self.average_rating}")
 
-    #@property
-    def delete(self,using=None,keep_parents=False):
-        print("deleting")
-        self.deleted_at = timezone.now()
-        self.save(update_fields=["deleted_at"])
+    # #@property
+    # def delete(self,using=None,keep_parents=False):
+    #     print("deleting")
+    #     self.deleted_at = timezone.now()
+    #     self.save(update_fields=["deleted_at"])
     
-    #@property
-    def restore(self):
-        self.deleted_at = None
-        self.save(update_fields=["deleted_at"])
+    # #@property
+    # def restore(self):
+    #     self.deleted_at = None
+    #     self.save(update_fields=["deleted_at"])
 
     def __str__(self):
         return f"{self.name}"
@@ -102,7 +102,7 @@ class RestrauntModel(TimestampedModel):
 ############################################################################
 #  6. Menu-Items Model
 class MenuItem(TimestampedModel):
-    restaurant = models.ForeignKey('RestrauntModel',on_delete=models.CASCADE,related_name='menu')
+    restaurant = models.ForeignKey('RestaurantModel',on_delete=models.CASCADE,related_name='menu')
     name = models.CharField(max_length=50)
     description = models.TextField()
     price = models.DecimalField(max_digits=5,decimal_places=2)

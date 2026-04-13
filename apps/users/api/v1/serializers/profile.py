@@ -51,7 +51,8 @@ class DriverProfileSerializer(serializers.ModelSerializer):
     #DONE
     class Meta:
         model = DriverProfile
-        fields = ['user', 'avatar', 'vehicle_number', 'license_number', 'is_available']
+        fields = ['avatar', 'vehicle_number', 'license_number', 'is_available']
+       
 
 class DriverProfileSerializeru(serializers.ModelSerializer):
     #DONE

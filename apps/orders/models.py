@@ -17,8 +17,8 @@ from django.utils import timezone
 #Local Imports
 from common.models.timestamped import TimestampedModel
 from common.models.softdel import SoftDeleteModel
-from apps.users.models import CustomUser,address
-from apps.restaurants.models import RestrauntModel,MenuItem
+from apps.users.models import CustomUser,Address
+from apps.restaurants.models import RestaurantModel,MenuItem
 
 
 logger = logging.getLogger('main')
@@ -30,7 +30,7 @@ logger = logging.getLogger('main')
 #  7. Order Model
 class Order(TimestampedModel):
     customer = models.ForeignKey(CustomUser,on_delete=models.DO_NOTHING,related_name='order_for',db_index=True)
-    restaurant = models.ForeignKey(RestrauntModel,on_delete=models.DO_NOTHING,related_name='order_by',db_index=True)
+    restaurant = models.ForeignKey(RestaurantModel,on_delete=models.DO_NOTHING,related_name='order_by',db_index=True)
     driver = models.ForeignKey(CustomUser,on_delete=models.DO_NOTHING,related_name='deliver_by',null=True)
     order_number = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
     STATE_PD = 'pd'
@@ -69,7 +69,7 @@ class Order(TimestampedModel):
         default=STATE_PD,
     )
     adratorder = models.TextField()
-    delivery_address = models.ForeignKey(address,on_delete=models.DO_NOTHING,related_name='delivery_adress')
+    delivery_address = models.ForeignKey(Address,on_delete=models.DO_NOTHING,related_name='delivery_adress')
     subtotal = models.DecimalField(max_digits=10,decimal_places=2,default=Decimal('0.00'))
     delivery_fee = models.DecimalField(max_digits=6,decimal_places=2,default=Decimal('0.00'))
     tax = models.DecimalField(max_digits=6,decimal_places=2,default=Decimal('0.00'))
@@ -224,7 +224,7 @@ class OrderItem(models.Model):
 #  10. Cart Model
 class Review(TimestampedModel):
     customer = models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name='review_by')
-    restaurant = models.ForeignKey(RestrauntModel,on_delete=models.CASCADE,related_name='review_for',null=True)
+    restaurant = models.ForeignKey(RestaurantModel,on_delete=models.CASCADE,related_name='review_for',null=True)
     menu_item = models.ForeignKey(MenuItem,on_delete=models.CASCADE,related_name='review_of',null=True)
     order = models.ForeignKey('Order',on_delete=models.CASCADE,related_name='order')
     rating = models.IntegerField(validators=[MinValueValidator(1),MaxValueValidator(5)])

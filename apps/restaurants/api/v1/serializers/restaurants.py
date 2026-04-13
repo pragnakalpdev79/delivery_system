@@ -9,7 +9,7 @@ from PIL import Image
 from django.utils import timezone
 
 # Local Imports
-from apps.restaurants.models import RestrauntModel, MenuItem
+from apps.restaurants.models import RestaurantModel, MenuItem
 
 logger = logging.getLogger('main')
 
@@ -24,7 +24,7 @@ class RestoListSerializer(serializers.ModelSerializer):
     is_open_now = serializers.SerializerMethodField()
 
     class Meta:
-        model = RestrauntModel
+        model = RestaurantModel
         fields = ['id', 'name', 'description', 'cuisine_type', 'address', 'phone_number', 'email',
                   'logo', 'banner', 'delivery_fee', 'minimum_order', 'average_rating', 'total_reviews', 'is_open_now']
 
@@ -39,7 +39,7 @@ class RestoSerializer(serializers.ModelSerializer):
     reviews_count = serializers.SerializerMethodField()
 
     class Meta:
-        model = RestrauntModel
+        model = RestaurantModel
         fields = ['id', 'owner', 'name', 'description', 'cuisine_type', 'address', 'phone_number', 'email',
                   'logo', 'banner', 'opening_time', 'closing_time', 'is_open', 'delivery_fee', 'minimum_order',
                   'average_rating', 'total_reviews', 'menu', 'reviews_count']
@@ -51,8 +51,11 @@ class RestoSerializer(serializers.ModelSerializer):
 
 class RestoCreateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = RestrauntModel
-        exclude = ['deleted_at', 'average_rating', 'total_reviews', 'is_open']
+        model = RestaurantModel
+        fields = ['owner','name','description','cuisine_type','address','phone_number','email','logo','banner',
+                  'opening_time','closing_time','delivery_fee','minimum_order','latitude','longitude','location']
+        read_only_fields = ['owner']
+
 
     def validate_logo(self, value):
         if not value:

@@ -116,6 +116,7 @@ class UserLoginView(viewsets.ModelViewSet):
     http_method_names = ['post']
     permission_classes = [AllowAny]
     serializer_class = CustomUserLoginSerializer
+    status = status.HTTP_200_OK
 
     def create(self,request):
         serializer = self.get_serializer(data=request.data)

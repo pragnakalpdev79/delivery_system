@@ -22,11 +22,11 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['order_number', 'customer', 'restaurant', 'driver', 'status', 'delivery_address',
+        fields = ['order_number', 'customer', 'status', 'delivery_address',
                   'subtotal', 'delivery_fee', 'tax', 'total_amount', 'special_instructions',
                   'estimated_delivery_time', 'actual_delivery_time', 'items', 'created_at']
         read_only_fields = ['customer', 'subtotal', 'delivery_fee', 'tax', 'total_amount',
-                            'estimated_delivery_time', 'actual_delivery_time', 'created_at']
+                            'estimated_delivery_time', 'actual_delivery_time', 'created_at', 'restaurant', 'driver']
 
 
 class OrderStatusUpdateSerializer(serializers.Serializer):

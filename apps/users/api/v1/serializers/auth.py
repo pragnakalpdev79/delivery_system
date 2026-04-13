@@ -19,7 +19,7 @@ class CustomUserRegistrationSerializer(serializers.ModelSerializer):
     - Validates 2 input passwords if they are same or not
     """
     
-    password = serializers.CharField(min_length=8,)
+    password = serializers.CharField(min_length=8,write_only=True)
     password_confirm = serializers.CharField(write_only=True)
     class Meta:
         model = CustomUser

@@ -3,8 +3,10 @@ import logging
 import json
 
 # Third-Party Imports (Django)
+from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from drf_spectacular_websocket.decorators import extend_ws_schema
+from ....orders.models import Order
 
 logger = logging.getLogger('main')
 
@@ -54,6 +56,9 @@ class CustomerConsumer(AsyncWebsocketConsumer):
     async def chat_message(self, event):
         await self.send(text_data=json.dumps({"message": event["message"]}))
 
+def get_order(id):
+    order = Order.objects.select_related('customer','restaurant','driver','restaurant__owner').get(pk=id)
+    return order
 
 #==============================================================================
 # 2. Order Room
@@ -62,10 +67,26 @@ class OrderConsumer(AsyncWebsocketConsumer):
         self.room_name = self.scope["url_route"]["kwargs"]["order_id"]
         self.room_group_name = f'order_{self.room_name}'
         self.user = self.scope.get('user')
+        logger.info("test cf")
 
-        if not self.user or not self.user.is_authenticated:
+        if (not self.user) or (not self.user.is_authenticated):
             await self.close()
             return
+        order = await database_sync_to_async(get_order)(id=self.room_name)
+        if self.user.utype == 'c' and not (self.user == order.customer):
+            print("cust",order.customer)
+            await self.close()
+            return
+        if self.user.utype == 'd' and not (self.user == order.driver):
+            print("driver",order.driver)
+            await self.close()
+            return
+        if self.user.utype == 'r' and not (self.user == order.restaurant.owner):
+            print("owner",order.restaurant.owner)
+            await self.close()
+            return
+
+        print(self.user)
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         logger.info(f"order ws connected -- user {self.user.id} room {self.room_group_name}")
@@ -94,11 +115,14 @@ class OrderConsumer(AsyncWebsocketConsumer):
 # 2. Restaurant Room
 class RestoConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.room_name = self.scope["url_route"]["kwargs"]["order_id"]
+        self.room_name = self.scope["url_route"]["kwargs"]["user_id"]
         self.room_group_name = f'restaurant_{self.room_name}'
         self.user = self.scope.get('user')
 
-        if not self.user or not self.user.is_authenticated and not self.user.utype == 'r' :
+        if ((not self.user) or (not self.user.is_authenticated )):
+            await self.close()
+            return
+        if not self.user.utype == 'r':
             await self.close()
             return
 

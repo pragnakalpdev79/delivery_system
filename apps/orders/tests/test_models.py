@@ -9,6 +9,7 @@ from common.tests.factories import CustomUserFactory, RestaurantFactory, MenuIte
 class TestOrderModel:
     @pytest.fixture
     def setup_order(self):
+        #DONE
         customer = CustomUserFactory(utype='c')
         resto = RestaurantFactory(delivery_fee=Decimal('30.00'))
         addr = AddressFactory(adrofuser=customer)

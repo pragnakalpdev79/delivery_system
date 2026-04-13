@@ -7,7 +7,7 @@ from rest_framework import serializers
 from PIL import Image
 
 # Local Imports
-from apps.restaurants.models import MenuItem,RestrauntModel
+from apps.restaurants.models import MenuItem,RestaurantModel
 
 logger = logging.getLogger('main')
 
@@ -34,8 +34,8 @@ class MenuSerializer(serializers.ModelSerializer):
 
         id = self.context.get('request').user.id
         try:
-            self.resto = RestrauntModel.objects.filter(owner_id=id).get(id=value)
-        except RestrauntModel.DoesNotExist:
+            self.resto = RestaurantModel.objects.filter(owner_id=id).get(id=value)
+        except RestaurantModel.DoesNotExist:
             raise serializers.ValidationError("Please enter the restaurant which you own and does exits")
         return value
     

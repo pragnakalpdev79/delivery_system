@@ -2,16 +2,18 @@ import pytest
 import datetime
 from decimal import Decimal
 from django.utils import timezone
-from apps.restaurants.models import RestrauntModel, MenuItem
+from apps.restaurants.models import RestaurantModel, MenuItem
 from common.tests.factories import CustomUserFactory, RestaurantFactory, MenuItemFactory, ReviewFactory
 
 @pytest.mark.django_db
 class TestRestaurantModel:
     def test_restaurant_str(self):
-        resto = RestaurantFactory(name="Spice Kingdom")
-        assert str(resto) == "Spice Kingdom"
+        #DONE
+        resto = RestaurantFactory(name="Resto 1")
+        assert str(resto) == "Resto 1"
 
     def test_is_currently_open_true(self, mocker):
+        #DONE
         resto = RestaurantFactory(
             opening_time=datetime.time(9, 0),
             closing_time=datetime.time(23, 0)
@@ -21,6 +23,7 @@ class TestRestaurantModel:
         assert resto.is_currently_open() is True
 
     def test_is_currently_open_false(self, mocker):
+        #DONE
         resto = RestaurantFactory(
             opening_time=datetime.time(9, 0),
             closing_time=datetime.time(17, 0)
@@ -30,6 +33,7 @@ class TestRestaurantModel:
         assert resto.is_currently_open() is False
 
     def test_update_average_rating_with_reviews(self):
+        #DONE
         resto = RestaurantFactory(average_rating=Decimal('0.0'), total_reviews=0)
         ReviewFactory(restaurant=resto, rating=4)
         ReviewFactory(restaurant=resto, rating=5)
@@ -42,12 +46,14 @@ class TestRestaurantModel:
 
 
     def test_soft_delete(self):
+        #DONE
         resto = RestaurantFactory()
         resto.delete()
         resto.refresh_from_db()
         assert resto.deleted_at is not None
 
     def test_restore(self):
+        #DONE
         resto = RestaurantFactory()
         resto.delete()
         resto.restore()
@@ -58,5 +64,6 @@ class TestRestaurantModel:
 @pytest.mark.django_db
 class TestMenuItemModel:
     def test_menu_item_str(self):
+        #DONE
         item = MenuItemFactory(name="Paneer Tikka")
         assert str(item) == "Paneer Tikka"

@@ -1,8 +1,8 @@
 from django.contrib import admin
-from .models import RestrauntModel,MenuItem
+from .models import RestaurantModel,MenuItem
 
-@admin.register(RestrauntModel)
-class RestrauntModel(admin.ModelAdmin):
+@admin.register(RestaurantModel)
+class RestaurantModel(admin.ModelAdmin):
     list_display = ('name','email','phone_number','owner','cuisine_type','description','id','location')
     ordering = ['-created_at']
 

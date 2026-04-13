@@ -7,7 +7,7 @@ from rest_framework import serializers
 from PIL import Image
 
 # Local Imports
-from apps.restaurants.models import RestrauntModel,MenuItem
+from apps.restaurants.models import RestaurantModel,MenuItem
 
 
 
@@ -18,7 +18,7 @@ class RestoListSerializer(serializers.ModelSerializer):
     is_open_now = serializers.SerializerMethodField()
 
     class Meta:
-        model = RestrauntModel
+        model = RestaurantModel
         fields = ['id','name','description','cuisine_type','address',
                   'phone_number','email','logo','banner','delivery_fee',
                   'is_open_now','minimum_order',
@@ -41,4 +41,4 @@ class RestoSerializer(serializers.ModelSerializer):
     menu = MenuListSerializer(many=True)
     class Meta:
         fields = ['name','description','cuisine_type','is_open','opening_time','closing_time','menu','review_for']
-        model = RestrauntModel
+        model = RestaurantModel

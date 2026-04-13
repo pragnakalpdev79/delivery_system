@@ -1,7 +1,7 @@
 import pytest
 from decimal import Decimal
 from django.core.exceptions import ValidationError
-from apps.users.models import CustomUser,CustomerProfile,address
+from apps.users.models import CustomUser,CustomerProfile,Address
 from common.models.driver import DriverProfile
 from common.tests.fixtures import create_groups
 
@@ -110,18 +110,18 @@ class TestDriverProfile:
 @pytest.mark.django_db
 class TestAddress:
     def test_create_address(self,customer_user):
-        adr = address.objects.create(
+        adr = Address.objects.create(
             adrname='Home',address='123 Street',
             is_default=True,adrofuser=customer_user,
         )
         assert adr.pk is not None
 
     def test_default_address_resets_others(self,customer_user):
-        adr1 = address.objects.create(
+        adr1 = Address.objects.create(
             adrname='Home',address='123 Street',
             is_default=True,adrofuser=customer_user,
         )
-        adr2 = address.objects.create(
+        adr2 = Address.objects.create(
             adrname='Office',address='456 Avenue',
             is_default=True,adrofuser=customer_user,
         )

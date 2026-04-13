@@ -18,7 +18,7 @@ from apps.users.models import CustomUser
 @pytest.fixture(autouse=True)
 def create_groups(db):
     cgrps,created = Group.objects.get_or_create(name='Customers')
-    Group.objects.get_or_create(name='RestrauntOwners')
+    Group.objects.get_or_create(name='RestaurantOwners')
     Group.objects.get_or_create(name='Drivers')
     print("groups created for test")
     content_type = ContentType.objects.get_for_model(CustomUser)

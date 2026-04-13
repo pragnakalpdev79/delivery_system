@@ -7,6 +7,7 @@ from common.tests.factories import CustomUserFactory, RestaurantFactory, MenuIte
 @pytest.mark.django_db
 class TestCartService:
     def test_update_cart_new_item(self):
+        #DONE
         user = CustomUserFactory()
         resto = RestaurantFactory()
         item = MenuItemFactory(restaurant=resto)
@@ -16,6 +17,7 @@ class TestCartService:
         assert CartItem.objects.get(user=user).quantity == 2
 
     def test_update_cart_existing_item(self):
+        #DONE
         user = CustomUserFactory()
         resto = RestaurantFactory()
         item = MenuItemFactory(restaurant=resto)
@@ -26,11 +28,13 @@ class TestCartService:
         assert CartItem.objects.get(user=user).quantity == 3
 
     def test_checkout_empty_cart_raises_error(self):
+        #DONE
         user = CustomUserFactory()
         with pytest.raises(ValueError, match="cart is empty"):
             CartService.checkout(user)
 
     def test_checkout_multiple_restaurants_raises_error(self):
+        #DONE
         user = CustomUserFactory()
         resto1 = RestaurantFactory()
         resto2 = RestaurantFactory()

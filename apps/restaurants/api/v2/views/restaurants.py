@@ -12,7 +12,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 # Local Imports
 from ....selectors.restaurant_selctor import RestaurantSelector
-from ..serializers.restaurants import RestoListSerializer
+from ..serializers.restaurants import RestoListSerializer,RestoCreateSerializer,RestoSerializer,MenuItemSerializer,RestoUpdateSerializer 
 
 logger = logging.getLogger('user')
 
@@ -114,7 +114,8 @@ class RestaurantViewSet(viewsets.ModelViewSet):
         cache_key = f"resto_{pk}"
         cached_data = cache.get(cache_key)
         if cached_data is None:
-            resto = RestaurantSelector.get_resto()
+            resto = RestaurantSelector.get_resto(pk=pk)
+            self.check_object_permissions(request,resto)
             serializer = self.get_serializer(resto)
             cached_data = serializer.data
             cache.set(cache_key,cached_data,600)
