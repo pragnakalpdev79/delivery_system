@@ -17,14 +17,18 @@ class UserService:
     @transaction.atomic
     def create_user(**kwargs):
         #DONE
+        email = kwargs.pop('email')
+        print(kwargs)
+        password = kwargs.pop('password')
         user = CustomUser.objects.create_user(
-             email=kwargs.get('email'),
-             password=kwargs.get('password'),
-             username=kwargs.get('username'),
-             first_name=kwargs.get('first_name'),
-             last_name=kwargs.get('last_name'),
-             utype=kwargs.get('utype'),
-             phone_number=kwargs.get('phone_number'),
+            email=email,
+            password=password,
+            #  username=kwargs.get('username'),
+            #  first_name=kwargs.get('first_name'),
+            #  last_name=kwargs.get('last_name'),
+            #  utype=kwargs.get('utype'),
+            #  phone_number=kwargs.get('phone_number'),
+            **kwargs
         )
 
         group = None
@@ -35,7 +39,7 @@ class UserService:
             logger.info(f" {user}==>{group}")
 
         if user.check_if_restaurant:
-            group = Group.objects.get(name='RestaurantOwners')
+            group = Group.objects.get(name='RestrauntOwners')
             user.groups.add(group)
             logger.info(f" {user}==>{group}")
 

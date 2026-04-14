@@ -57,7 +57,11 @@ class CustomUserLoginSerializer(serializers.ModelSerializer):
 
     def validate(self,data):
         user = authenticate(email=data['email'],password=data['password'])
+        print(data['email'],data['password'])
+        print("=============user===========")
         if not user:
+            print(user)
+            print("===========")
             raise serializers.ValidationError("Please enter correct email and password")
         data['user'] = user
         return data

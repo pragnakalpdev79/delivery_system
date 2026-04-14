@@ -100,7 +100,7 @@ class UserRegistrationView(viewsets.ModelViewSet):
     def create(self,request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        cred = UserService.create_user(**serializer.data)
+        cred = UserService.create_user(**serializer.validated_data)
         return Response(cred,status=status.HTTP_201_CREATED)
     
     

@@ -11,13 +11,31 @@ class MyUserManager(BaseUserManager):
 
     # 0.1 FUNCTION TO HANDLE NEW NORMAL USER CREATION
     def create_user(self,email,password=None,**extra_fields):
+        print("IN creating user  ==========")
         if not email:
             raise ValueError(_('The Email field must be set'))
         email = self.normalize_email(email)
+        print("======================")
+        print(email)
         user = self.model(email=email,**extra_fields)
+        print("======================")
+        print(user.password)
+        print("======================")
+        print(password)
+        print("======================")
         user.set_password(password)
+        print(user.password)
+        print("==============================")
         user.save(using=self.db)
         return user
+    
+    def get_by_natural_key(self, username):
+        """
+        Normalize email before lookup so that varying case in the domain
+        doesn’t block authentication.
+        """
+        email = self.normalize_email(username)
+        return self.get(**{self.model.USERNAME_FIELD: email})
 
     # 0.2 FUNCTION TO HANDLE NEW ADMIN/SUPERUSER CREATION 
     def create_superuser(self,email,password=None,**extra_fields):

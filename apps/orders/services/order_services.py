@@ -4,6 +4,7 @@ from decimal import Decimal
 
 # Third-Party Imports (Django)
 from django.db import transaction
+from django.db.models import Avg,Count,Sum
 
 # Local Imports
 from apps.orders.models import CartItem, Order, OrderItem
@@ -28,6 +29,8 @@ class CartService:
         total = Decimal('0.00')
         for i in items:
             total += i.menu_item.price * i.quantity
+        print("v2==========================")
+        print(items.aggregate(Sum))
         return total.quantize(Decimal('0.01'))
 
     @staticmethod

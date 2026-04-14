@@ -84,7 +84,7 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter',
     ],
     'DEFAULT_SCHEMA_CLASS' : 'drf_spectacular.openapi.AutoSchema',
-    'EXCEPTION_HANDLER' : 'common.exceptions.custom_exception_handler',
+    #'EXCEPTION_HANDLER' : 'common.exceptions.custom_exception_handler',
         'DEFAULT_THROTTLE_CLASSES' : [
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',
