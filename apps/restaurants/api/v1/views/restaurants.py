@@ -104,7 +104,7 @@ class RestaurantViewSet(PerfomanceLoggingMixin,viewsets.ModelViewSet):
     ordering = ['-average_rating']
     filterset_class = RestaurantFilter
 
-    queryset = RestaurantModel.objects.filter(deleted_at=None)
+    queryset = RestaurantModel.objects.all()
 
     def get_serializer_class(self):
         logger.info(self.action)

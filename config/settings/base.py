@@ -170,6 +170,30 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# File upload settings
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB - files larger than this go to temp The maximum size (in bytes) that an upload will be before it gets streamed to the file system
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB - max request body size
+FILE_UPLOAD_PERMISSIONS = 0o644  # File permissions for uploaded files
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755  # Directory permissions
+'''
+The maximum size in bytes that a request body may be before a SuspiciousOperation (RequestDataTooBig) is raised.
+ The check is done when accessing request.body or request.POST and is calculated against the total request size excluding any file upload data (request.FILES). 
+ You can set this to None to disable the check. Applications that are expected to receive unusually large form posts should tune this setting.
+'''
+
+# Allowed upload handlers (default)
+FILE_UPLOAD_HANDLERS = [
+    'django.core.files.uploadhandler.MemoryFileUploadHandler',
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
+]
+'''
+Together MemoryFileUploadHandler and TemporaryFileUploadHandler provide Django’s 
+default file upload behavior of reading small files into memory and large ones onto disk.
+By default, if an uploaded file is smaller than 2.5 megabytes, Django will hold the entire contents of the upload in memory. 
+This means that saving the file involves only a read from memory and a write to disk and thus is very fast.
+However, if an uploaded file is too large, Django will write the uploaded file to a temporary file stored in your system’s temporary directory.
+'''
+
 
 
 LOGGING = {

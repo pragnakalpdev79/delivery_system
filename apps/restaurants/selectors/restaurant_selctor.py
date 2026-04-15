@@ -11,7 +11,7 @@ class RestaurantSelector:
     @staticmethod
     def get_resto_list():
         #queryset = RestaurantModel.objects.filter(deleted_at=None).annotate(items_count=Count('menu'))
-        queryset = RestaurantModel.objects.filter(deleted_at=None).defer('description', 'created_at', 'updated_at').annotate(items_count=Count('menu'))
+        queryset = RestaurantModel.objects.defer('description', 'created_at', 'updated_at').annotate(items_count=Count('menu'))
         return queryset
     
     @staticmethod

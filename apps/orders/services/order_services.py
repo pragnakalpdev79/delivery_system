@@ -4,7 +4,7 @@ from decimal import Decimal
 
 # Third-Party Imports (Django)
 from django.db import transaction
-from django.db.models import Avg,Count,Sum
+from django.db.models import Avg,Count,Sum,F
 
 # Local Imports
 from apps.orders.models import CartItem, Order, OrderItem
@@ -25,18 +25,15 @@ class CartService:
 
     @staticmethod
     def cart_total(user):
-        items = CartItem.objects.filter(user=user).select_related('menu_item')
+        items = CartItem.objects.filter(user=user).select_related('menu_item').aggregate(Sum("quantity"),orvalue=Sum(F("menu_item__price")*F("quantity")))
         total = Decimal('0.00')
-        for i in items:
-            total += i.menu_item.price * i.quantity
-        print("v2==========================")
-        print(items.aggregate(Sum))
+        total = items["orvalue"]
         return total.quantize(Decimal('0.01'))
 
     @staticmethod
     @transaction.atomic
     def checkout(user, special_instructions=''):
-        cart_items = CartItem.objects.filter(user=user).select_related('menu_item', 'menu_item__restaurant')
+        cart_items = CartItem.objects.filter(user=user).select_for_update().select_related('menu_item', 'menu_item__restaurant')
         if not cart_items.exists():
             raise ValueError("cart is empty")
 
@@ -66,6 +63,8 @@ class CartService:
             adratorder=dadr.address,
             special_instructions=special_instructions,
         )
+        
+        ois = list()
 
         for ci in cart_items:
             oi = OrderItem(
@@ -75,8 +74,8 @@ class CartService:
                 uprice=ci.menu_item.price,
             )
             oi._skip_recalc = True
-            oi.save()
-
+            ois.append(oi)
+        OrderItem.objects.bulk_create(ois)
         order.calculate_total()
 
         order.calculate_eta()

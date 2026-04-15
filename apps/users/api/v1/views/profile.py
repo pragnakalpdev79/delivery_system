@@ -48,7 +48,9 @@ class CustomerProfileView(viewsets.ModelViewSet):
     def list(self, request):
         #DONE
         profile = ProfileSelector.get_user_profile(request.user)
+        print(profile)
         serializer = CustomerProfileSerializerv(profile)
+        #serializer.data.update({"total_orders":profile.tods,})
         return Response(serializer.data)
     
     def retrieve(self, request, *args, **kwargs):

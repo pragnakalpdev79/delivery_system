@@ -11,7 +11,7 @@ from django.contrib.gis.geos import Point
 from django.core.validators import MaxValueValidator,MinValueValidator
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Avg,Sum,F
+from django.db.models import Avg,Sum,F,UniqueConstraint
 from django.utils import timezone
 
 #Local Imports
@@ -183,13 +183,13 @@ class Order(TimestampedModel):
     def delivered(self):
         self._transition(self.STATE_DL)
 
-    @property
-    def is_cancellable(self):
-        return self.status in [self.STATE_PD,self.STATE_CO,self.STATE_PR,self.STATE_RD]
+    # @property
+    # def is_cancellable(self):
+    #     return self.status in [self.STATE_PD,self.STATE_CO,self.STATE_PR,self.STATE_RD]
 
-    @property
-    def is_completed(self):
-        return self.status in [self.STATE_DL,self.STATE_CD]
+    # @property
+    # def is_completed(self):
+    #     return self.status in [self.STATE_DL,self.STATE_CD]
     
     def can_cancel(self):
         return self.status in [self.STATE_PD,self.STATE_CO,self.STATE_PR,self.STATE_RD]
@@ -213,7 +213,7 @@ class OrderItem(models.Model):
     order = models.ForeignKey('Order',on_delete=models.DO_NOTHING,related_name='item_for')
     menu_item = models.ForeignKey(MenuItem,on_delete=models.DO_NOTHING,related_name='item_from')
     quantity = models.PositiveIntegerField(blank=False,null=False)
-    uprice = models.DecimalField(max_digits=5,decimal_places=2,help_text='snapshot of item price at order time')
+    uprice = models.DecimalField(max_digits=10,decimal_places=2,help_text='snapshot of item price at order time')
     special_instructions = models.TextField(null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -238,3 +238,9 @@ class Review(TimestampedModel):
         
     def __str__(self):
         return f"Review by {self.customer.email} for menu-item {self.menu_item} is {self.rating},which was order the {self.restaurant} "
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(name="review_only_once",fields=["customer","order"])
+        ]
+        #If UniqueConstraint.fields is set without a UniqueConstraint.condition, defaults to the Meta.unique_together error code when there are multiple fields, and to the Field.unique error code when there is a single field.

@@ -20,10 +20,13 @@ class CustomerSerializer(serializers.ModelSerializer):
 
 class CustomerProfileSerializerv(serializers.ModelSerializer):
     user = CustomerSerializer(read_only=True)
+    total_order = serializers.IntegerField()
+    total_spent = serializers.DecimalField(max_digits=10,decimal_places=2)
 
     class Meta:
         model = CustomerProfile
-        fields = ['user', 'avatar', 'loyalty_points', 'total_orders', 'total_spend']
+        #, 'total_orders', 'total_spend'
+        fields = ['user', 'avatar', 'loyalty_points','total_order','total_spent']
 
 
 class CustomProfileSerializer(serializers.ModelSerializer):

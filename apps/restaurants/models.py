@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.db.models import Avg 
 
 #Local Imports
+from apps.restaurants.managers import MyRestoManager
 from common.models.timestamped import TimestampedModel
 from common.models.softdel import SoftDeleteModel
 from apps.users.models import CustomUser
@@ -95,6 +96,8 @@ class RestaurantModel(TimestampedModel,SoftDeleteModel):
     # def restore(self):
     #     self.deleted_at = None
     #     self.save(update_fields=["deleted_at"])
+    objects = MyRestoManager()
+    all_objects = models.Manager()
 
     def __str__(self):
         return f"{self.name}"
@@ -105,7 +108,7 @@ class MenuItem(TimestampedModel):
     restaurant = models.ForeignKey('RestaurantModel',on_delete=models.CASCADE,related_name='menu')
     name = models.CharField(max_length=50)
     description = models.TextField()
-    price = models.DecimalField(max_digits=5,decimal_places=2)
+    price = models.DecimalField(max_digits=10,decimal_places=2)
     CAC = (
         ('a','Appteizer'),
         ('m','Main Course'),
