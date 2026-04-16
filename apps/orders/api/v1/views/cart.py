@@ -157,7 +157,6 @@ class CartViewSet(viewsets.ModelViewSet):
     active=extend_schema(
         summary=" O.4 List of active orders of user",
         description="Returns active orders of logged in user -- for customers only",
-        auth=[{"tokenAuth": [], }],
         tags=["Order"],
     ),
     history=extend_schema(
@@ -199,7 +198,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         order = self.get_object()
         serializer = OrderStatusUpdateSerializer(data=request.data, context={'order': order})
         serializer.is_valid(raise_exception=True)
-        order._transition(serializer.validated_data['status'])
+        order._transition(serializer.validated_data['status'],order.status)
         return Response(OrderSerializer(order).data)
 
     @action(detail=True, methods=['post'])

@@ -41,7 +41,7 @@ class Order(TimestampedModel):
     STATE_DL = 'dl'
     STATE_CD = 'cd'
 
-    __current_status = None
+    __current_status = None #name mangling
 
     SC = (
         (STATE_PD,'Pending'),
@@ -53,6 +53,7 @@ class Order(TimestampedModel):
         (STATE_CD,'Cancelled'),
     )
     TRANSITIONS = {
+        None : STATE_PD,
         STATE_PD: [STATE_CO,STATE_CD],
         STATE_CO: [STATE_PR,STATE_CD],
         STATE_PR: [STATE_RD,STATE_CD],
@@ -118,46 +119,10 @@ class Order(TimestampedModel):
         self.estimated_delivery_time = timezone.now() + timedelta(minutes=total_minutes)
         self.save(update_fields=['estimated_delivery_time'])
         logger.info(f"ETA == {self.estimated_delivery_time} ({total_minutes} min = {travel_minutes} travel + {max_prep} prep)")
-
-    def __init__(self,*args,**kwargs):
-        super().__init__(*args,**kwargs)
-        self.__current_status = self.status #INTIATED WITH PENDING ORDER STATUS
     
-    def save(self, force_insert=False, 
-             force_update=False, 
-             using=None,
-             update_fields=None): 
-        # CHECKS IF THE MODEL IS BEING CREATED OR UPDATED
-        #IF THE STATE IS CHANGED ITS UPDATED HENCE SKIP VALIDATION
-        # self.status(pending) != self.__current_status(pending) which means it is not updated yet. hence False(Not Updated)
-        logger.info("step1")
-        allowed_next = self.TRANSITIONS.get(self.__current_status,[]) 
-        logger.info("step2")
-        updated = self.status != self.__current_status
-        logger.info("step3")
-
-        if self.pk and updated and self.status not in allowed_next:
-            #raise Exception("Invalid Transition.",self.status,allowed_next)
-            raise ValidationError(
-                f"Invalid Transition: {self.__current_status} -> {self.status} -- Allowed = {allowed_next}"
-            )
-        
-        logger.info("step4")
-
-        if self.pk and updated:
-            self.__current_status = self.status
-
-        logger.info("step5")
-
-        return super().save(
-            force_insert=force_insert,
-            force_update=force_update,
-            using=using,
-            update_fields=update_fields,
-        )
-    
-    def _transition(self,next_status):
+    def _transition(self,next_status,current_status):
         logger.info("step6")
+        self.__current_status = current_status
         self.status = next_status
         logger.info("step7")
         if next_status == self.STATE_DL:
@@ -166,22 +131,22 @@ class Order(TimestampedModel):
         logger.info(f"Order {self.order_number} transitioned to {next_status}")
 
     def raccept(self,driver=None):
-        self._transition(self.STATE_CO)
+        self._transition(self.STATE_CO,self.STATE_PD)
 
     def rreject(self):
         self._transition(self.STATE_CD)
 
     def confiremd(self):
-        self._transition(self.STATE_PR)
+        self._transition(self.STATE_PR,self.STATE_CO)
 
     def readytop(self):
-        self._transition(self.STATE_RD)
+        self._transition(self.STATE_RD,self.STATE_PR)
 
     def pickedup(self):
-        self._transition(self.STATE_PU)
+        self._transition(self.STATE_PU,self.STATE_RD)
 
     def delivered(self):
-        self._transition(self.STATE_DL)
+        self._transition(self.STATE_DL,self.STATE_PU)
 
     # @property
     # def is_cancellable(self):
@@ -195,7 +160,12 @@ class Order(TimestampedModel):
         return self.status in [self.STATE_PD,self.STATE_CO,self.STATE_PR,self.STATE_RD]
     
     def is_delivered(self):
-        return self.status == self.STATE_DL 
+        return self.status == self.STATE_DL
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["driver","status"],name='freqstatus')
+        ] 
 
 ############################################################################
 #  8. Cart-Items Model
@@ -206,6 +176,11 @@ class CartItem(models.Model):
 
     def __str__(self):
         return f"This is {self.user}'s cart for - {self.menu_item} with quantity {self.quantity}"
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=["user","menu_item"],name='usercart')
+        ]
 
 ############################################################################
 #  9. Order-Item Model
@@ -240,6 +215,9 @@ class Review(TimestampedModel):
         return f"Review by {self.customer.email} for menu-item {self.menu_item} is {self.rating},which was order the {self.restaurant} "
 
     class Meta:
+        indexes = [
+            models.Index(fields=["customer","order"],name='user_reviews')
+        ]
         constraints = [
             UniqueConstraint(name="review_only_once",fields=["customer","order"])
         ]

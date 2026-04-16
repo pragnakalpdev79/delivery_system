@@ -184,20 +184,20 @@ class RestaurantViewSet(PerfomanceLoggingMixin,viewsets.ModelViewSet):
             pagination_class=MenuItemPagination)
     def menu(self,request,pk=None):
         #DONE
-        queryset = MenuSelector.get_menu_list(pk=pk)
+        self.queryset = MenuSelector.get_menu_list(pk=pk)
         self.filterset_class = MenuItemFilter
         self.search_fields = ['name','description']
         self.ordering_fields = ['price','name','created_at']
         self.ordering = ['name']
-        queryset = self.filter_queryset(queryset)
-        page = self.paginate_queryset(queryset)
+        self.queryset = self.filter_queryset(self.queryset)
+        page = self.paginate_queryset(self.queryset)
 
         if page is not None:
             logger.info("p1")
             serializer = self.get_serializer(page,many=True)
             return self.get_paginated_response(serializer.data)
     
-        serializer = self.get_serializer(queryset,many=True)
+        serializer = self.get_serializer(self.queryset,many=True)
         logger.info("listing all menu items")
 
         if not serializer.data:
@@ -224,12 +224,12 @@ class RestaurantViewSet(PerfomanceLoggingMixin,viewsets.ModelViewSet):
         if cached:
             logger.info("returning cached popular restos")
             return Response(cached)
-        
-        queryset = RestaurantSelector.get_popular()
-        serializer = self.get_serializer(queryset,many=True)
-        cache.set(cache_key,serializer.data,1800)  # 30 minutes
-        logger.info("listing popular restos and caching")
-        return Response(serializer.data)
+        with cache.lock(f"popular",timeout=5):
+            queryset = RestaurantSelector.get_popular()
+            serializer = self.get_serializer(queryset,many=True)
+            cache.set(cache_key,serializer.data,1800)  # 30 minutes
+            logger.info("listing popular restos and caching")
+            return Response(serializer.data)
 
 #==============================================================================
 # 6. DELETE A RESTO + CACHE INVALIDATION

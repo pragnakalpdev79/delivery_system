@@ -101,6 +101,11 @@ class RestaurantModel(TimestampedModel,SoftDeleteModel):
 
     def __str__(self):
         return f"{self.name}"
+    
+    class Meta:
+        indexes = [
+                models.Index(fields=["owner","deleted_at"],name='activeresto')
+            ]
 
 ############################################################################
 #  6. Menu-Items Model

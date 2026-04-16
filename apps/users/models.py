@@ -81,6 +81,9 @@ class CustomUser(AbstractUser,SoftDeleteModel,TimestampedModel):
             ('IsOrderCustomer',"AA only order customer can view order details"),
             ('IsRestaurantOwnerOrDriver',"AA restaurant owner or assigned driver can update order status"),
         ]
+        indexes = [
+            models.Index(fields=["id","deleted_at"],name='activebase')
+        ]
 
 ############################################################################
 #  2. ADDRESS MODEL TO STORE ALL ADDRESSES
@@ -124,17 +127,18 @@ class CustomerProfile(TimestampedModel):
         alladrs = Address.objects.filter(adrofuser=self.user)
         return alladrs
 
-    @property
-    def total_orders(self):
-        return self.user.order_for.count()
+    # NOT used inefficient~!!!
+    # @property
+    # def total_orders(self):
+    #     return self.user.order_for.count()
     
-    @property
-    def total_spend(self):
-        spend = self.user.order_for.filter(status='dl')
-        spend = spend.aggregate(total=Sum('total_amount'))
-        if spend['total']:
-            return spend['total']
-        return Decimal('0.00')
+    # @property
+    # def total_spend(self):
+    #     spend = self.user.order_for.filter(status='dl')
+    #     spend = spend.aggregate(total=Sum('total_amount'))
+    #     if spend['total']:
+    #         return spend['total']
+    #     return Decimal('0.00')
     
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"

@@ -9,7 +9,7 @@ class ProfileSelector:
         #.annotate(Sum("user__order_for"))
         #.select_related('user')
         #.prefetch_related("user__order_for")
-        cp = CustomerProfile.objects.annotate(total_order=Count("user__order_for"),total_spent=Sum("user__order_for__total_amount")).get(user=ruser)
+        cp = CustomerProfile.objects.annotate(total_order=Count("user__order_for"),total_spent=Sum("user__order_for__total_amount")).select_related('user').get(user=ruser)
         return cp
     
     

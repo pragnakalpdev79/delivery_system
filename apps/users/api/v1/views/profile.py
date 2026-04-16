@@ -48,11 +48,10 @@ class CustomerProfileView(viewsets.ModelViewSet):
     def list(self, request):
         #DONE
         profile = ProfileSelector.get_user_profile(request.user)
-        print(profile)
         serializer = CustomerProfileSerializerv(profile)
-        #serializer.data.update({"total_orders":profile.tods,})
         return Response(serializer.data)
-    
+
+
     def retrieve(self, request, *args, **kwargs):
         #DONE
         return Response({
@@ -95,7 +94,7 @@ class CustomerProfileView(viewsets.ModelViewSet):
     ),
 )
 class DriverProfileView(viewsets.ModelViewSet):
-    permission_classes = [IsDriver]
+    #permission_classes = [IsDriver]
     http_method_names=['get','patch']
 
     def get_serializer_class(self):

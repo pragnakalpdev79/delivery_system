@@ -3,6 +3,7 @@ import logging
 import json
 
 # Third-Party Imports (Django)
+from django.core.cache import cache
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from drf_spectacular_websocket.decorators import extend_ws_schema
@@ -57,8 +58,19 @@ class CustomerConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({"message": event["message"]}))
 
 def get_order(id):
-    order = Order.objects.select_related('customer','restaurant','driver','restaurant__owner').get(pk=id)
-    return order
+    cache_key = f"wsorder_{id}"
+    cached_data = cache.get(cache_key)
+    if cached_data is None:
+        with cache.lock(f"lock_wsorder_{id}"):
+            try: 
+                order = Order.objects.select_related('customer','restaurant','driver','restaurant__owner').get(pk=id)
+            except Order.DoesNotExist:
+                logger.info("Order does not exist")
+                raise ValueError('Order not found')
+            cached_data = order
+            cache.set(cache_key,cached_data,600)
+            return order
+    return cached_data
 
 #==============================================================================
 # 2. Order Room

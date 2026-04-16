@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from apps.users.models import CustomUser,CustomerProfile,Address
 from common.models.driver import DriverProfile
 from common.tests.fixtures import create_groups
+from django.db.models import Avg,Count,Sum,F
 
 @pytest.fixture
 def customer_user(db):
@@ -77,12 +78,14 @@ class TestCustomerProfile:
         assert profile.loyalty_points == 0
 
     def test_total_orders_zero_initially(self,customer_user):
-        profile = CustomerProfile.objects.get(user=customer_user)
-        assert profile.total_orders == 0
+        profile = CustomerProfile.objects.annotate(total_order=Count("user__order_for"),total_spent=Sum("user__order_for__total_amount")).select_related('user').get(user=customer_user)
+        #profile = CustomerProfile.objects.get(user=customer_user)
+        assert profile.total_order == 0
 
     def test_total_spend_zero_initially(self,customer_user):
-        profile = CustomerProfile.objects.get(user=customer_user)
-        assert profile.total_spend == Decimal('0.00')
+        profile = CustomerProfile.objects.annotate(total_order=Count("user__order_for"),total_spent=Sum("user__order_for__total_amount")).select_related('user').get(user=customer_user)
+        #profile = CustomerProfile.objects.get(user=customer_user)
+        assert profile.total_spent == None
 
 
 @pytest.mark.django_db

@@ -9,14 +9,14 @@ from apps.restaurants.models import RestaurantModel
 
 class RestaurantSelector:
     @staticmethod
-    def get_resto_list():
+    def get_resto_list(): #.prefetch_related('menu')
         #queryset = RestaurantModel.objects.filter(deleted_at=None).annotate(items_count=Count('menu'))
         queryset = RestaurantModel.objects.defer('description', 'created_at', 'updated_at').annotate(items_count=Count('menu'))
         return queryset
     
     @staticmethod
     def get_resto(pk):
-        queryset = RestaurantModel.objects.prefetch_related('menu','review_for').get(id=pk)
+        queryset = RestaurantModel.objects.prefetch_related('review_for').get(id=pk)
         return queryset
     
     @staticmethod

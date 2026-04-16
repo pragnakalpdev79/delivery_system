@@ -25,7 +25,7 @@ class CustomerProfileSerializerv(serializers.ModelSerializer):
 
     class Meta:
         model = CustomerProfile
-        #, 'total_orders', 'total_spend'
+        #, 'total_orders', 'total_spend' 
         fields = ['user', 'avatar', 'loyalty_points','total_order','total_spent']
 
 
@@ -52,9 +52,10 @@ class CustomProfileSerializer(serializers.ModelSerializer):
 
 class DriverProfileSerializer(serializers.ModelSerializer):
     #DONE
+    user = CustomerSerializer(read_only=True)
     class Meta:
         model = DriverProfile
-        fields = ['avatar', 'vehicle_number', 'license_number', 'is_available']
+        fields = ['user','avatar', 'vehicle_number', 'license_number', 'is_available']
        
 
 class DriverProfileSerializeru(serializers.ModelSerializer):

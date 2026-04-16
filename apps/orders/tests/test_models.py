@@ -20,7 +20,8 @@ class TestOrderModel:
             customer=customer,
             restaurant=resto,
             delivery_address=addr,
-            adratorder=addr.address
+            adratorder=addr.address,
+            status = 'pd'
         )
         OrderItem.objects.create(order=order, menu_item=item1, quantity=2, uprice=item1.price)
         OrderItem.objects.create(order=order, menu_item=item2, quantity=1, uprice=item2.price)
@@ -41,28 +42,6 @@ class TestOrderModel:
         assert order.delivery_fee == Decimal('30.00')
         assert order.total_amount == Decimal('397.50')
 
-    def test_state_transitions(self, setup_order):
-        #DONE
-        order = setup_order
-        assert order.status == Order.STATE_PD
-        order.raccept()
-        assert order.status == Order.STATE_CO
-        order.confiremd()
-        assert order.status == Order.STATE_PR
-        order.readytop()
-        assert order.status == Order.STATE_RD
-        order.pickedup()
-        assert order.status == Order.STATE_PU
-        order.delivered()
-        assert order.status == Order.STATE_DL
-
-    def test_invalid_state_transition(self, setup_order):
-        #DONE
-        order = setup_order
-        with pytest.raises(ValidationError):
-            order.status = Order.STATE_DL  # Cannot jump from PD to DL
-            order.save()
-
     def test_cancellation_allowed(self, setup_order):
         #DONE
         order = setup_order
@@ -76,3 +55,4 @@ class TestOrderModel:
         order.status = Order.STATE_PU
         
         assert order.can_cancel() is False
+

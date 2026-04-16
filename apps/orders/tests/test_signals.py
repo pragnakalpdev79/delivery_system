@@ -14,9 +14,11 @@ class TestSignals:
         driver_user = CustomUserFactory(utype='d')
         #dp = DriverProfileFactory(user=driver_user, total_deliveries=0)
         
-        order = OrderFactory(status=Order.STATE_PU, driver=driver_user)
+        order = OrderFactory(driver=driver_user)
         dp = driver_user.driver_profile
         # Transition to DL should trigger signal
+        #order.raccept()
+        print(order.status)
         order.delivered()
         
         dp.refresh_from_db()

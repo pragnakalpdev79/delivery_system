@@ -62,6 +62,7 @@ class CartService:
             delivery_address=dadr,
             adratorder=dadr.address,
             special_instructions=special_instructions,
+            status='pd',
         )
         
         ois = list()

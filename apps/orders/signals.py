@@ -5,6 +5,7 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from apps.orders.models import Order, OrderItem, Review
 from common.models.driver import DriverProfile
+from django.core.cache import cache
 
 logger = logging.getLogger('main')
 
@@ -21,6 +22,9 @@ def order_notification(sender, instance, created, **kwargs):
         f"order_{instance.order_number}",
         {"type": "send_notification", "message": f"Order status updated: {instance.status}"}
     )
+    cache.delete(f"wsorder_{instance.order_number}")
+    cache_key = f"wsorder_{instance.order_number}"
+    cache.set(cache_key,instance,600)
     if instance.status == 'dl' and instance.driver:
         try:
             dp = DriverProfile.objects.get(user=instance.driver)

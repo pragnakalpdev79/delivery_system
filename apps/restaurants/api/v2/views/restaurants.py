@@ -114,14 +114,15 @@ class RestaurantViewSet(viewsets.ModelViewSet):
         cache_key = f"resto_{pk}"
         cached_data = cache.get(cache_key)
         if cached_data is None:
-            resto = RestaurantSelector.get_resto(pk=pk)
-            self.check_object_permissions(request,resto)
-            serializer = self.get_serializer(resto)
-            cached_data = serializer.data
-            cache.set(cache_key,cached_data,600)
-            return Response({
-                    "message" : "Here are the restaurant details",
-                    "resto_id" : pk,
-                    'details' : serializer.data,
-                })
+            with cache.lock(f"lock_resto_{pk}"):
+                resto = RestaurantSelector.get_resto(pk=pk)
+                self.check_object_permissions(request,resto)
+                serializer = self.get_serializer(resto)
+                cached_data = serializer.data
+                cache.set(cache_key,cached_data,600)
+                return Response({
+                        "message" : "Here are the restaurant details",
+                        "resto_id" : pk,
+                        'details' : serializer.data,
+                    })
         return Response(cached_data)      

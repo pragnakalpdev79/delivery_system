@@ -9,7 +9,7 @@ class CustomUser(admin.ModelAdmin):
 
 @admin.register(CustomerProfile)
 class CustomerProfile(admin.ModelAdmin):
-    list_display = ('user','total_orders','loyalty_points','avatar')
+    list_display = ('user','loyalty_points','avatar')
     ordering = ['-created_at']
 
 @admin.register(DriverProfile)
