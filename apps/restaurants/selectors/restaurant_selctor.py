@@ -16,7 +16,7 @@ class RestaurantSelector:
     
     @staticmethod
     def get_resto(pk):
-        queryset = RestaurantModel.objects.prefetch_related('review_for').get(id=pk)
+        queryset = RestaurantModel.objects.prefetch_related('review_for','menu').get(id=pk)
         return queryset
     
     @staticmethod

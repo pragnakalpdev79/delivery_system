@@ -2,10 +2,12 @@ from django.contrib import admin
 from django.urls import path, include,re_path
 from config import settings
 from django.conf.urls.static import static
+from apps.users.api.v1.views.auth import health_check
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('check/',health_check,name='health-check'),
 
     # API V1
     path('api/v1/auth/', include('apps.users.api.v1.urls')),

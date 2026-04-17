@@ -52,6 +52,7 @@ AUTH_USER_MODEL = 'users.CustomUser'
 
 # Middleware
 MIDDLEWARE = [
+    'common.middleware.conditional.ConditionalMiddleware',
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',

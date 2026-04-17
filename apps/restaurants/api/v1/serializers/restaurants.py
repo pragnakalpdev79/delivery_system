@@ -35,7 +35,7 @@ class RestoListSerializer(serializers.ModelSerializer):
 
 
 class RestoSerializer(serializers.ModelSerializer):
-    menu = MenuItemSerializer(many=True, read_only=True)
+    menu = serializers.SerializerMethodField()
     reviews_count = serializers.SerializerMethodField()
 
     class Meta:
@@ -44,6 +44,9 @@ class RestoSerializer(serializers.ModelSerializer):
                   'logo', 'banner', 'opening_time', 'closing_time', 'is_open', 'delivery_fee', 'minimum_order',
                   'average_rating', 'total_reviews', 'menu', 'reviews_count']
         read_only_fields = ['owner', 'average_rating', 'total_reviews']
+
+    def get_menu(self,obj):
+        return MenuItemSerializer(obj.menu.all(),many=True).data
 
     def get_reviews_count(self, obj):
         return obj.review_for.count()

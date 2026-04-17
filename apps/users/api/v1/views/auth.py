@@ -3,9 +3,13 @@ import logging
 
 # Third-Party Imports (Django)
 from django.shortcuts import render
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import never_cache
 from django.contrib.auth.models import Group,Permission
 from drf_spectacular.utils import extend_schema, extend_schema_view, inline_serializer,OpenApiParameter, OpenApiExample, OpenApiResponse
 from rest_framework import generics,status,viewsets,filters
+from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny,IsAuthenticated,IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,6 +19,21 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from ....services.user_service import UserService
 from ..serializers.auth import *
+
+# HEALTH CHECK
+@csrf_exempt
+@never_cache
+@extend_schema(
+      summary='HEALTH CHECK',
+      tags=['health'], 
+      methods=['GET'],
+)
+@api_view(['GET'])
+def health_check(request):
+    return JsonResponse({
+        "status": "ok"
+    })
+
 
 #============================================================
 # 1.SIGNUP - Allowany
